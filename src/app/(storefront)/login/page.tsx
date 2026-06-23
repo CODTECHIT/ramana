@@ -1,5 +1,10 @@
 "use client";
 
+// Prevent static export errors on platforms that attempt a full static export
+// (e.g., `next export`). This forces the page to be rendered dynamically at
+// runtime so client-only APIs and fetches don't run during build.
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../components/AuthProvider";

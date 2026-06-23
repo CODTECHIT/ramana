@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { Category } from "../models/Category.js";
 
 // @desc    Get all categories
@@ -6,6 +7,11 @@ import { Category } from "../models/Category.js";
 // @access  Public (Storefront needs this too)
 export const getCategories = async (req: Request, res: Response) => {
   try {
+    // If DB isn't connected (development fallback), return empty array
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json([]);
+    }
+
     const categories = await Category.find({}).sort({ displayOrder: 1 });
     res.status(200).json(categories);
   } catch (error) {
@@ -19,11 +25,14 @@ export const getCategories = async (req: Request, res: Response) => {
 // @access  Admin
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const { name, slug, description, heroImage, displayOrder, active } = req.body;
+    const { name, slug, description, heroImage, displayOrder, active } =
+      req.body;
 
     const existingCategory = await Category.findOne({ slug });
     if (existingCategory) {
-      return res.status(400).json({ message: "Category with this slug already exists" });
+      return res
+        .status(400)
+        .json({ message: "Category with this slug already exists" });
     }
 
     const category = await Category.create({
@@ -64,7 +73,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     res.status(200).json(updatedCategory);
@@ -88,11 +97,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
     // In a real scenario, check if products exist for this category
     // We will enforce this before deleting
     const { Product } = await import("../models/Product.js");
-    const productsCount = await Product.countDocuments({ category: category._id });
+    const productsCount = await Product.countDocuments({
+      category: category._id,
+    });
 
     if (productsCount > 0) {
-      return res.status(400).json({ 
-        message: `Cannot delete category because it has ${productsCount} products assigned. Reassign them first.` 
+      return res.status(400).json({
+        message: `Cannot delete category because it has ${productsCount} products assigned. Reassign them first.`,
       });
     }
 

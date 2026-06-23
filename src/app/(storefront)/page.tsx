@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield, RefreshCcw, CreditCard, Truck, ArrowRight } from "lucide-react";
-import { GoldDivider, SectionEyebrow, SectionHeading, GoldBtn } from "../../components/SharedUI";
+import {
+  Shield,
+  RefreshCcw,
+  CreditCard,
+  Truck,
+  ArrowRight,
+} from "lucide-react";
+import {
+  GoldDivider,
+  SectionEyebrow,
+  SectionHeading,
+  GoldBtn,
+} from "../../components/SharedUI";
 import { ProductCard } from "../../components/ProductCard";
 import { useCart } from "../../components/CartProvider";
 import { I, COLLECTIONS, Constants } from "../../lib/mock-data";
@@ -18,26 +29,40 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("http://127.0.0.1:5000/api/categories").then(res => res.json()),
-      fetch("http://127.0.0.1:5000/api/products").then(res => res.json())
-    ]).then(([cats, prods]) => {
-      setCategories(cats);
-      // Get 4 random products or just the first 4 active ones for bestsellers
-      setProducts(prods.filter((p: any) => p.active).slice(0, 4));
-    }).catch(console.error);
+      fetch("http://127.0.0.1:5000/api/categories").then((res) => res.json()),
+      fetch("http://127.0.0.1:5000/api/products").then((res) => res.json()),
+    ])
+      .then(([cats, prods]) => {
+        // Backend may return an error object (e.g. { message: 'Server Error' })
+        // so ensure we only set an array of categories.
+        if (Array.isArray(cats)) {
+          setCategories(cats);
+        } else if (cats && Array.isArray(cats.categories)) {
+          setCategories(cats.categories);
+        } else {
+          console.error("Unexpected categories response:", cats);
+          setCategories([]);
+        }
+        // Get 4 random products or just the first 4 active ones for bestsellers
+        setProducts(prods.filter((p: any) => p.active).slice(0, 4));
+      })
+      .catch(console.error);
   }, []);
 
   const TRUST = [
-    { icon: Shield,     label: "BIS Hallmark Certified" },
-    { icon: RefreshCcw, label: "Lifetime Exchange"       },
-    { icon: CreditCard, label: "Secure Payments"         },
-    { icon: Truck,      label: "Easy Returns"            },
+    { icon: Shield, label: "BIS Hallmark Certified" },
+    { icon: RefreshCcw, label: "Lifetime Exchange" },
+    { icon: CreditCard, label: "Secure Payments" },
+    { icon: Truck, label: "Easy Returns" },
   ];
 
   return (
     <main>
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ height: "91vh", minHeight: 520 }}>
+      <section
+        className="relative overflow-hidden"
+        style={{ height: "91vh", minHeight: 520 }}
+      >
         <img
           src={I.hero}
           alt="South Indian bridal jewellery editorial"
@@ -45,10 +70,16 @@ export default function HomePage() {
         />
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(115deg, rgba(36,31,26,0.78) 0%, rgba(36,31,26,0.25) 55%, transparent 100%)" }}
+          style={{
+            background:
+              "linear-gradient(115deg, rgba(36,31,26,0.78) 0%, rgba(36,31,26,0.25) 55%, transparent 100%)",
+          }}
         />
         <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-20 max-w-3xl">
-          <p className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5" style={{ color: GOLD, fontFamily: SANS }}>
+          <p
+            className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5"
+            style={{ color: GOLD, fontFamily: SANS }}
+          >
             The 2026 Bridal Collection
           </p>
           <h1
@@ -61,20 +92,31 @@ export default function HomePage() {
           </h1>
           <p
             className="text-base md:text-lg mb-9 max-w-md leading-relaxed"
-            style={{ color: "rgba(250,247,242,0.78)", fontFamily: SANS, fontWeight: 300 }}
+            style={{
+              color: "rgba(250,247,242,0.78)",
+              fontFamily: SANS,
+              fontWeight: 300,
+            }}
           >
-            Three generations of South Indian master craftsmen. Every piece hallmarked, every detail considered.
+            Three generations of South Indian master craftsmen. Every piece
+            hallmarked, every detail considered.
           </p>
           <div className="flex flex-wrap gap-4">
-            <GoldBtn onClick={() => router.push("/collections/all")}>Explore Bridal</GoldBtn>
-            <GoldBtn outline onClick={() => router.push("/collections/all")}>View Collections</GoldBtn>
+            <GoldBtn onClick={() => router.push("/collections/all")}>
+              Explore Bridal
+            </GoldBtn>
+            <GoldBtn outline onClick={() => router.push("/collections/all")}>
+              View Collections
+            </GoldBtn>
           </div>
         </div>
 
         {/* Bottom gold accent bar */}
         <div
           className="absolute bottom-0 inset-x-0 h-0.5"
-          style={{ background: `linear-gradient(90deg, transparent, ${GOLD} 40%, ${GOLD} 60%, transparent)` }}
+          style={{
+            background: `linear-gradient(90deg, transparent, ${GOLD} 40%, ${GOLD} 60%, transparent)`,
+          }}
         />
       </section>
 
@@ -84,7 +126,7 @@ export default function HomePage() {
           <SectionEyebrow>Our Categories</SectionEyebrow>
           <SectionHeading center>Shop by Occasion</SectionHeading>
         </div>
-        <div 
+        <div
           className="flex overflow-x-auto snap-x gap-4 md:gap-6 pb-4 md:pb-0 md:grid md:grid-cols-7"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
@@ -97,7 +139,9 @@ export default function HomePage() {
               <div
                 className="relative overflow-hidden rounded-full w-full aspect-square transition-all duration-300"
                 style={{ background: MIST }}
-                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = `0 0 0 2.5px ${GOLD}`)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.boxShadow = `0 0 0 2.5px ${GOLD}`)
+                }
                 onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
               >
                 <img
@@ -147,7 +191,10 @@ export default function HomePage() {
               </div>
               <div
                 className="absolute inset-0"
-                style={{ background: "linear-gradient(0deg, rgba(36,31,26,0.88) 0%, rgba(36,31,26,0.1) 55%, transparent 100%)" }}
+                style={{
+                  background:
+                    "linear-gradient(0deg, rgba(36,31,26,0.88) 0%, rgba(36,31,26,0.1) 55%, transparent 100%)",
+                }}
               />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3
@@ -156,7 +203,10 @@ export default function HomePage() {
                 >
                   {col.title}
                 </h3>
-                <p className="text-xs leading-relaxed mb-4" style={{ color: "rgba(250,247,242,0.65)", fontFamily: SANS }}>
+                <p
+                  className="text-xs leading-relaxed mb-4"
+                  style={{ color: "rgba(250,247,242,0.65)", fontFamily: SANS }}
+                >
                   {col.desc}
                 </p>
                 <span
@@ -183,28 +233,41 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {products.map((p) => (
-            <ProductCard
-              key={p.slug}
-              product={p}
-              onAdd={addToCart}
-            />
+            <ProductCard key={p.slug} product={p} onAdd={addToCart} />
           ))}
         </div>
         <div className="text-center mt-12">
-          <GoldBtn onClick={() => router.push("/collections/all")}>View All Jewellery</GoldBtn>
+          <GoldBtn onClick={() => router.push("/collections/all")}>
+            View All Jewellery
+          </GoldBtn>
         </div>
       </section>
 
       {/* ── Trust badges ──────────────────────────────────────────────────── */}
-      <div style={{ background: "#FDF9F3", borderTop: `1px solid rgba(201,162,39,0.12)`, borderBottom: `1px solid rgba(201,162,39,0.12)` }}>
+      <div
+        style={{
+          background: "#FDF9F3",
+          borderTop: `1px solid rgba(201,162,39,0.12)`,
+          borderBottom: `1px solid rgba(201,162,39,0.12)`,
+        }}
+      >
         <div className="max-w-screen-xl mx-auto px-6 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {TRUST.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-3 text-center">
-                <div className="p-4" style={{ border: `1px solid rgba(201,162,39,0.3)` }}>
+              <div
+                key={label}
+                className="flex flex-col items-center gap-3 text-center"
+              >
+                <div
+                  className="p-4"
+                  style={{ border: `1px solid rgba(201,162,39,0.3)` }}
+                >
                   <Icon size={20} style={{ color: GOLD }} />
                 </div>
-                <p className="text-xs tracking-widest uppercase" style={{ color: CHARCOAL, fontFamily: SANS }}>
+                <p
+                  className="text-xs tracking-widest uppercase"
+                  style={{ color: CHARCOAL, fontFamily: SANS }}
+                >
                   {label}
                 </p>
               </div>
@@ -223,8 +286,12 @@ export default function HomePage() {
           >
             The Ramana Jewells Circle
           </h2>
-          <p className="text-sm leading-relaxed mb-8" style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}>
-            Receive early access to new collections, exclusive offers, and invitations to private trunk shows.
+          <p
+            className="text-sm leading-relaxed mb-8"
+            style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}
+          >
+            Receive early access to new collections, exclusive offers, and
+            invitations to private trunk shows.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
             <input
@@ -235,7 +302,7 @@ export default function HomePage() {
                 background: "rgba(250,247,242,0.07)",
                 color: IVORY,
                 fontFamily: SANS,
-                borderColor: "rgba(201,162,39,0.3)"
+                borderColor: "rgba(201,162,39,0.3)",
               }}
             />
             <button
