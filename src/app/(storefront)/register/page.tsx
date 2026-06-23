@@ -1,5 +1,9 @@
 "use client";
 
+// Force dynamic rendering to avoid prerender/export-time errors
+// when client-only hooks like `useSearchParams` are used.
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Constants } from "../../../lib/mock-data";
