@@ -79,7 +79,7 @@ export function GoldBtn({
       style={{
         fontFamily: SANS,
         background: outline ? "transparent" : hov ? DARK_GOLD : GOLD,
-        color: outline ? (hov ? GOLD : CHARCOAL) : IVORY,
+        color: outline ? (hov ? GOLD : IVORY) : IVORY,
         border: `1px solid ${GOLD}`,
       }}
     >

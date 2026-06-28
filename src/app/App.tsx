@@ -1,4 +1,5 @@
 import { useState } from "react";
+import heroImage from "../landing page.jpeg";
 import {
   Search, User, Heart, ShoppingBag, Menu, ArrowRight, ChevronRight,
   ChevronDown, ChevronLeft, Star, Plus, Minus, Check, X,
@@ -52,7 +53,7 @@ const SANS = "'Inter', system-ui, sans-serif";
 
 // ─── Image URLs ───────────────────────────────────────────────────────────────
 const I = {
-  hero:      "https://images.unsplash.com/photo-1570212773364-e30cd076539e?w=1600&h=900&fit=crop&auto=format",
+  hero:      heroImage.src,
   bride1:    "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?w=800&h=1000&fit=crop&auto=format",
   necklace:  "https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=600&h=750&fit=crop&auto=format",
   bangles:   "https://images.unsplash.com/photo-1587271511223-18b7ef9a327a?w=600&h=600&fit=crop&auto=format",
@@ -209,7 +210,7 @@ function GoldBtn({
       style={{
         fontFamily: SANS,
         background: outline ? "transparent" : hov ? DARK_GOLD : GOLD,
-        color: outline ? (hov ? GOLD : CHARCOAL) : IVORY,
+        color: outline ? (hov ? GOLD : IVORY) : IVORY,
         border: `1px solid ${GOLD}`,
       }}
     >
@@ -582,17 +583,40 @@ function HomePage({
           alt="South Indian bridal jewellery editorial"
           className="absolute inset-0 w-full h-full object-cover"
         />
+        {/* Mobile Gradient Overlay (stronger at the bottom-left where text is positioned) */}
         <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(115deg, rgba(36,31,26,0.78) 0%, rgba(36,31,26,0.25) 55%, transparent 100%)" }}
+          className="absolute inset-0 block md:hidden"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(20,16,12,0.95) 0%, rgba(20,16,12,0.7) 45%, rgba(20,16,12,0.2) 80%, transparent 100%)",
+          }}
         />
-        <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-20 max-w-3xl">
-          <p className="text-xs tracking-[0.4em] uppercase mb-5" style={{ color: GOLD, fontFamily: SANS }}>
+        {/* Desktop Gradient Overlay */}
+        <div
+          className="absolute inset-0 hidden md:block"
+          style={{
+            background:
+              "linear-gradient(115deg, rgba(36,31,26,0.85) 0%, rgba(36,31,26,0.3) 55%, transparent 100%)",
+          }}
+        />
+        <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:justify-center md:pb-0 px-8 md:px-20 max-w-3xl">
+          <p
+            className="text-xs tracking-[0.4em] uppercase mb-5"
+            style={{
+              color: GOLD,
+              fontFamily: SANS,
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            }}
+          >
             The 2026 Bridal Collection
           </p>
           <h1
             className="text-5xl md:text-7xl font-normal leading-tight mb-6"
-            style={{ fontFamily: SERIF, color: IVORY }}
+            style={{
+              fontFamily: SERIF,
+              color: IVORY,
+              textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+            }}
           >
             Born of Gold,
             <br />
@@ -600,7 +624,12 @@ function HomePage({
           </h1>
           <p
             className="text-base md:text-lg mb-9 max-w-md leading-relaxed"
-            style={{ color: "rgba(250,247,242,0.78)", fontFamily: SANS, fontWeight: 300 }}
+            style={{
+              color: "rgba(250,247,242,0.9)",
+              fontFamily: SANS,
+              fontWeight: 300,
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            }}
           >
             Three generations of South Indian master craftsmen. Every piece hallmarked, every detail considered.
           </p>

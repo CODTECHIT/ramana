@@ -1,5 +1,7 @@
+import heroImage from "../../landing page.jpeg";
+
 export const I = {
-  hero: "https://images.unsplash.com/photo-1570212773364-e30cd076539e?w=1600&h=900&fit=crop&auto=format",
+  hero: heroImage.src,
   bride1: "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?w=800&h=1000&fit=crop&auto=format",
   necklace: "https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=600&h=750&fit=crop&auto=format",
   bangles: "https://images.unsplash.com/photo-1587271511223-18b7ef9a327a?w=600&h=600&fit=crop&auto=format",

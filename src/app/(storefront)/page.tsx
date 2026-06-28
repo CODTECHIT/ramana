@@ -68,23 +68,40 @@ export default function HomePage() {
           alt="South Indian bridal jewellery editorial"
           className="absolute inset-0 w-full h-full object-cover"
         />
+        {/* Mobile Gradient Overlay (stronger at the bottom-left where text is positioned) */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 block md:hidden"
           style={{
             background:
-              "linear-gradient(115deg, rgba(36,31,26,0.78) 0%, rgba(36,31,26,0.25) 55%, transparent 100%)",
+              "linear-gradient(to top, rgba(20,16,12,0.95) 0%, rgba(20,16,12,0.7) 45%, rgba(20,16,12,0.2) 80%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-20 max-w-3xl">
+        {/* Desktop Gradient Overlay */}
+        <div
+          className="absolute inset-0 hidden md:block"
+          style={{
+            background:
+              "linear-gradient(115deg, rgba(36,31,26,0.85) 0%, rgba(36,31,26,0.3) 55%, transparent 100%)",
+          }}
+        />
+        <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:justify-center md:pb-0 px-8 md:px-20 max-w-3xl">
           <p
             className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5"
-            style={{ color: GOLD, fontFamily: SANS }}
+            style={{
+              color: GOLD,
+              fontFamily: SANS,
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            }}
           >
             The 2026 Bridal Collection
           </p>
           <h1
             className="text-4xl md:text-7xl font-normal leading-tight mb-4 md:mb-6"
-            style={{ fontFamily: SERIF, color: IVORY }}
+            style={{
+              fontFamily: SERIF,
+              color: IVORY,
+              textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+            }}
           >
             Born of Gold,
             <br />
@@ -93,9 +110,10 @@ export default function HomePage() {
           <p
             className="text-base md:text-lg mb-9 max-w-md leading-relaxed"
             style={{
-              color: "rgba(250,247,242,0.78)",
+              color: "rgba(250,247,242,0.9)",
               fontFamily: SANS,
               fontWeight: 300,
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
             Three generations of South Indian master craftsmen. Every piece
