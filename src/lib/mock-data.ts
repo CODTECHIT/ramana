@@ -28,7 +28,6 @@ export const COLLECTIONS = [
 
 export const TICKER = [
   "25,000+ smiles delivered ❤️",
-  "worldwide shipping",
   "GST also provided",
 ];
 
@@ -69,6 +68,7 @@ export const fmt = (n: number) => "₹" + n.toLocaleString("en-IN");
 
 export interface CartItem {
   id: string; // will use slug as id for now
+  productId?: string;
   name: string;
   price: number;
   qty: number;

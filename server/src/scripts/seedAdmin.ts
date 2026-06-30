@@ -10,11 +10,11 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
-    const email = process.env.ADMIN_EMAIL;
-    const password = process.env.ADMIN_PASSWORD;
+    const email = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD || process.env.SEED_ADMIN_PASSWORD;
 
     if (!email || !password) {
-      console.error("❌ ADMIN_EMAIL or ADMIN_PASSWORD missing in .env");
+      console.error("❌ ADMIN_EMAIL/SEED_ADMIN_EMAIL or ADMIN_PASSWORD/SEED_ADMIN_PASSWORD missing in .env");
       process.exit(1);
     }
 

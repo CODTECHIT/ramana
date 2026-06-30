@@ -32,6 +32,45 @@ export default function CategoryManager() {
     displayOrder: 0,
     active: true,
   });
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    try {
+      setUploading(true);
+      const sigRes = await fetch("http://localhost:5000/api/admin/upload/signature", {
+        credentials: "include"
+      });
+      if (!sigRes.ok) throw new Error("Could not get upload signature");
+      
+      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("api_key", apiKey);
+      formDataUpload.append("timestamp", timestamp.toString());
+      formDataUpload.append("signature", signature);
+
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formDataUpload,
+      });
+
+      const uploadedData = await uploadRes.json();
+      if (uploadedData.secure_url) {
+        setFormData(prev => ({ ...prev, heroImage: uploadedData.secure_url }));
+      } else {
+        alert("Cloudinary upload failed");
+      }
+    } catch (err: any) {
+      alert("Error uploading image: " + err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -208,8 +247,29 @@ export default function CategoryManager() {
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Image URL (Cloudinary setup in next block)</label>
-                <input type="text" value={formData.heroImage} onChange={e => setFormData({ ...formData, heroImage: e.target.value })} placeholder="https://..." className="w-full p-2 border rounded text-sm outline-none focus:border-[#C9A227]" />
+                <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Category Image</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="text-xs w-full file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#FDF9F3] file:text-[#C9A227] hover:file:bg-[#FDF9F3]/80"
+                  />
+                </div>
+                {uploading && <p className="text-[10px] text-gray-400 mt-1">Uploading to Cloudinary...</p>}
+                {formData.heroImage && (
+                  <div className="mt-2 relative w-20 h-20 border rounded bg-gray-50 overflow-hidden">
+                    <img src={formData.heroImage} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, heroImage: "" })}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5"
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-4">

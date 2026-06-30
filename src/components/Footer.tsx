@@ -6,16 +6,41 @@ const { GOLD, CHARCOAL, SANS, SERIF, IVORY } = Constants;
 
 export function Footer() {
   const cols = [
-    { title: "Shop",    items: ["Necklaces", "Long Harams", "Bangles", "Bridal Sets", "Hipbelts", "Tikkas"] },
-    { title: "Brand",   items: ["Our Story", "Craftsmanship", "BIS Hallmark", "Karigar Partners", "Blog"] },
-    { title: "Support", items: ["Contact Us", "FAQ", "Shipping & Returns", "Sizing Guide", "WhatsApp"] },
+    { 
+      title: "Shop", 
+      items: [
+        { label: "Necklaces", href: "/collections/necklaces" },
+        { label: "Long Harams", href: "/collections/long-harams" },
+        { label: "Bangles", href: "/collections/bangles" },
+        { label: "Bridal Sets", href: "/collections/bridal-sets" },
+        { label: "Hipbelts", href: "/collections/hipbelts" },
+        { label: "Tikkas", href: "/collections/tikkas" },
+      ]
+    },
+    { 
+      title: "Brand", 
+      items: [
+        { label: "Our Story", href: "/about" },
+        { label: "Craftsmanship", href: "/about" },
+        { label: "Blog", href: "/blog" },
+      ]
+    },
+    { 
+      title: "Support", 
+      items: [
+        { label: "Contact Us", href: "/contact" },
+        { label: "FAQ", href: "/faq" },
+        { label: "Shipping & Returns", href: "/shipping-and-returns" },
+        { label: "WhatsApp", href: "https://wa.me/919999999999", external: true },
+      ]
+    },
   ];
 
   return (
     <footer style={{ background: CHARCOAL }}>
       <div className="max-w-screen-xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-12">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-10 gap-x-6 mb-12">
+          <div className="col-span-2 md:col-span-2">
             <h2 className="text-2xl font-normal mb-1" style={{ fontFamily: SERIF, color: IVORY }}>
               Ramana Jewells
             </h2>
@@ -45,16 +70,19 @@ export function Footer() {
                 </button>
               ))}
             </div>
-            <button
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
+            <a
+              href="https://wa.me/919999999999"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
               style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
             >
               <MessageCircle size={15} /> WhatsApp Us
-            </button>
+            </a>
           </div>
 
           {cols.map((col) => (
-            <div key={col.title}>
+            <div key={col.title} className="col-span-1">
               <h4
                 className="text-xs tracking-[0.25em] uppercase mb-5"
                 style={{ color: GOLD, fontFamily: SANS }}
@@ -63,14 +91,26 @@ export function Footer() {
               </h4>
               <ul className="space-y-2.5">
                 {col.items.map((item) => (
-                  <li key={item}>
-                    <Link
-                      href={`/collections/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="text-sm text-left transition-opacity hover:opacity-80 block"
-                      style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}
-                    >
-                      {item}
-                    </Link>
+                  <li key={item.label}>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-left transition-opacity hover:opacity-80 block"
+                        style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="text-sm text-left transition-opacity hover:opacity-80 block"
+                        style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -86,11 +126,11 @@ export function Footer() {
             © 2026 Ramana Jewells. All rights reserved.
           </p>
           <div className="flex gap-4 text-xs" style={{ color: "rgba(250,247,242,0.35)", fontFamily: SANS }}>
-            <span>Privacy Policy</span>
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <span>·</span>
-            <span>Terms of Service</span>
+            <Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</Link>
             <span>·</span>
-            <span>Sitemap</span>
+            <span className="opacity-50">Sitemap</span>
           </div>
         </div>
       </div>

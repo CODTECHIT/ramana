@@ -53,6 +53,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         ...prev,
         {
           id: product.slug, // using slug as id
+          productId: product._id,
           name: product.name,
           price: product.price,
           qty: 1,

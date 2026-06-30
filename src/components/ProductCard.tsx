@@ -103,7 +103,7 @@ export function ProductCard({
           {fmt(product.price)}
         </p>
         <p className="text-xs mt-0.5" style={{ color: SMOKE, fontFamily: SANS }}>
-          {product.weight ? `Wt: ${product.weight} · ` : ""}22KT BIS Hallmark
+          {product.weight ? `Wt: ${product.weight} · ` : ""}Premium Gold Finish
         </p>
       </div>
     </div>

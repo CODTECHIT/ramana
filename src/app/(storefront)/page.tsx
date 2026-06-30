@@ -7,6 +7,8 @@ import {
   CreditCard,
   Truck,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   GoldDivider,
@@ -26,13 +28,19 @@ export default function HomePage() {
   const { addToCart } = useCart();
   const [categories, setCategories] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [activeBannerIdx, setActiveBannerIdx] = useState(0);
 
   useEffect(() => {
     Promise.all([
-      fetch("http://127.0.0.1:5000/api/categories").then((res) => res.json()),
-      fetch("http://127.0.0.1:5000/api/products").then((res) => res.json()),
+      fetch("http://localhost:5000/api/categories").then((res) => res.json()),
+      fetch("http://localhost:5000/api/products").then((res) => res.json()),
+      fetch("http://localhost:5000/api/banners").then((res) => res.json()).catch(() => []),
+      fetch("http://localhost:5000/api/collections").then((res) => res.json()).catch(() => []),
     ])
-      .then(([cats, prods]) => {
+      .then(([cats, prods, bans, cols]) => {
         // Backend may return an error object (e.g. { message: 'Server Error' })
         // so ensure we only set an array of categories.
         if (Array.isArray(cats)) {
@@ -45,30 +53,53 @@ export default function HomePage() {
         }
         // Get 4 random products or just the first 4 active ones for bestsellers
         setProducts(prods.filter((p: any) => p.active).slice(0, 4));
+        if (Array.isArray(bans)) {
+          setBanners(bans);
+        }
+        if (Array.isArray(cols) && cols.length > 0) {
+          setCollections(cols);
+        } else {
+          setCollections(COLLECTIONS);
+        }
       })
       .catch(console.error);
   }, []);
 
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveBannerIdx((prev) => (prev + 1) % banners.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [banners]);
+
   const TRUST = [
-    { icon: Shield, label: "BIS Hallmark Certified" },
+    { icon: Shield, label: "Certified Quality" },
     { icon: RefreshCcw, label: "Lifetime Exchange" },
     { icon: CreditCard, label: "Secure Payments" },
     { icon: Truck, label: "Easy Returns" },
   ];
 
+  const currentHero = banners.length > 0 ? banners[activeBannerIdx] : null;
+  const heroImageSrc = currentHero?.image || I.hero;
+  const heroTitle = currentHero?.title || "Timeless Elegance,";
+  const heroSubtitle = currentHero?.subtitle || "Three generations of South Indian master craftsmen. Intricately designed, every detail considered.";
+  const heroLink = currentHero?.link || "/collections/all";
+
   return (
     <main>
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden transition-all duration-700 ease-in-out"
         style={{ height: "91vh", minHeight: 520 }}
       >
         <img
-          src={I.hero}
-          alt="South Indian bridal jewellery editorial"
-          className="absolute inset-0 w-full h-full object-cover"
+          src={heroImageSrc}
+          alt={currentHero?.title || "South Indian bridal jewellery editorial"}
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 transform scale-100"
+          key={heroImageSrc} // Key forces image reload and transitions naturally
         />
-        {/* Mobile Gradient Overlay (stronger at the bottom-left where text is positioned) */}
+        {/* Mobile Gradient Overlay */}
         <div
           className="absolute inset-0 block md:hidden"
           style={{
@@ -93,7 +124,7 @@ export default function HomePage() {
               textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
-            The 2026 Bridal Collection
+            {currentHero ? "Featured Collections" : "The 2026 Bridal Collection"}
           </p>
           <h1
             className="text-4xl md:text-7xl font-normal leading-tight mb-4 md:mb-6"
@@ -103,9 +134,15 @@ export default function HomePage() {
               textShadow: "0 2px 10px rgba(0,0,0,0.5)",
             }}
           >
-            Born of Gold,
-            <br />
-            <em>Worn Forever.</em>
+            {currentHero ? (
+              <span>{heroTitle}</span>
+            ) : (
+              <>
+                Born of Gold,
+                <br />
+                <em>Worn Forever.</em>
+              </>
+            )}
           </h1>
           <p
             className="text-base md:text-lg mb-9 max-w-md leading-relaxed"
@@ -116,18 +153,36 @@ export default function HomePage() {
               textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
-            Three generations of South Indian master craftsmen. Every piece
-            hallmarked, every detail considered.
+            {heroSubtitle}
           </p>
           <div className="flex flex-wrap gap-4">
-            <GoldBtn onClick={() => router.push("/collections/all")}>
-              Explore Bridal
+            <GoldBtn onClick={() => router.push(heroLink)}>
+              Explore Now
             </GoldBtn>
-            <GoldBtn outline onClick={() => router.push("/collections/all")}>
-              View Collections
-            </GoldBtn>
+            {!currentHero && (
+              <GoldBtn outline onClick={() => router.push("/collections/all")}>
+                View Collections
+              </GoldBtn>
+            )}
           </div>
         </div>
+
+        {/* Banner Navigation Indicators */}
+        {banners.length > 1 && (
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+            {banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveBannerIdx(idx)}
+                className="w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                style={{
+                  background: activeBannerIdx === idx ? GOLD : "rgba(250,247,242,0.4)",
+                  border: `1px solid ${activeBannerIdx === idx ? GOLD : "transparent"}`
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Bottom gold accent bar */}
         <div
@@ -139,19 +194,19 @@ export default function HomePage() {
       </section>
 
       {/* ── Shop by Category ──────────────────────────────────────────────── */}
-      <section className="py-20 max-w-screen-xl mx-auto px-6">
+      <section className="py-10 max-w-screen-xl mx-auto px-6">
         <div className="text-center mb-14">
           <SectionEyebrow>Our Categories</SectionEyebrow>
           <SectionHeading center>Shop by Occasion</SectionHeading>
         </div>
         <div
-          className="flex overflow-x-auto snap-x gap-4 md:gap-6 pb-4 md:pb-0 md:grid md:grid-cols-7"
+          className="flex overflow-x-auto snap-x gap-4 md:gap-6 pb-4 md:pb-0 md:flex md:flex-wrap md:justify-center md:gap-y-8 md:overflow-visible"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {categories.map((cat) => (
+          {(categories.length > 7 && !showAllCategories ? categories.slice(0, 7) : categories).map((cat) => (
             <button
               key={cat.name}
-              className="flex-shrink-0 w-28 md:w-auto flex flex-col items-center gap-3 group cursor-pointer snap-start"
+              className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3 group cursor-pointer snap-start"
               onClick={() => router.push(`/collections/${cat.slug}`)}
             >
               <div
@@ -176,6 +231,34 @@ export default function HomePage() {
               </p>
             </button>
           ))}
+
+          {categories.length > 7 && (
+            <button
+              className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3 group cursor-pointer"
+              onClick={() => setShowAllCategories(!showAllCategories)}
+            >
+              <div
+                className="relative overflow-hidden rounded-full w-full aspect-square transition-all duration-300 flex items-center justify-center border bg-[#FDF9F3]"
+                style={{ borderColor: "rgba(201,162,39,0.3)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.boxShadow = `0 0 0 2.5px ${GOLD}`)
+                }
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+              >
+                {showAllCategories ? (
+                  <ChevronUp size={24} style={{ color: GOLD }} />
+                ) : (
+                  <ChevronDown size={24} style={{ color: GOLD }} />
+                )}
+              </div>
+              <p
+                className="text-xs tracking-widest uppercase text-center leading-tight font-semibold"
+                style={{ color: GOLD, fontFamily: SANS }}
+              >
+                {showAllCategories ? "View Less" : "View More"}
+              </p>
+            </button>
+          )}
         </div>
       </section>
 
@@ -184,25 +267,25 @@ export default function HomePage() {
       </div>
 
       {/* ── Collections editorial ─────────────────────────────────────────── */}
-      <section className="py-16 max-w-screen-xl mx-auto px-6">
+      <section className="py-10 max-w-screen-xl mx-auto px-6">
         <div className="text-center mb-14">
           <SectionEyebrow>Curated Edits</SectionEyebrow>
           <SectionHeading center>Collections</SectionHeading>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {COLLECTIONS.map((col, i) => (
+          {collections.map((col, i) => (
             <div
               key={col.title}
               className="relative overflow-hidden cursor-pointer group"
               style={{ background: MIST }}
-              onClick={() => router.push("/collections/all")}
+              onClick={() => router.push(col.link || "/collections/all")}
             >
               <div
                 className="overflow-hidden"
                 style={{ aspectRatio: i === 0 ? "3/4" : "4/5" }}
               >
                 <img
-                  src={col.img}
+                  src={col.image || col.img}
                   alt={col.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -225,7 +308,7 @@ export default function HomePage() {
                   className="text-xs leading-relaxed mb-4"
                   style={{ color: "rgba(250,247,242,0.65)", fontFamily: SANS }}
                 >
-                  {col.desc}
+                  {col.description || col.desc}
                 </p>
                 <span
                   className="text-xs tracking-widest uppercase flex items-center gap-2 transition-opacity hover:opacity-70"
@@ -244,7 +327,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Bestsellers ───────────────────────────────────────────────────── */}
-      <section className="py-16 max-w-screen-xl mx-auto px-6">
+      <section className="py-10 max-w-screen-xl mx-auto px-6">
         <div className="text-center mb-14">
           <SectionEyebrow>Most Loved</SectionEyebrow>
           <SectionHeading center>Bestsellers</SectionHeading>
@@ -269,7 +352,7 @@ export default function HomePage() {
           borderBottom: `1px solid rgba(201,162,39,0.12)`,
         }}
       >
-        <div className="max-w-screen-xl mx-auto px-6 py-12">
+        <div className="max-w-screen-xl mx-auto px-6 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {TRUST.map(({ icon: Icon, label }) => (
               <div
@@ -294,44 +377,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Newsletter ────────────────────────────────────────────────────── */}
-      <section className="py-20" style={{ background: CHARCOAL }}>
-        <div className="max-w-lg mx-auto px-6 text-center">
-          <SectionEyebrow>Stay Connected</SectionEyebrow>
-          <h2
-            className="text-3xl font-normal mb-4"
-            style={{ fontFamily: SERIF, color: IVORY }}
-          >
-            The Ramana Jewells Circle
-          </h2>
-          <p
-            className="text-sm leading-relaxed mb-8"
-            style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}
-          >
-            Receive early access to new collections, exclusive offers, and
-            invitations to private trunk shows.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-0">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-4 py-3 text-sm outline-none border sm:border-r-0"
-              style={{
-                background: "rgba(250,247,242,0.07)",
-                color: IVORY,
-                fontFamily: SANS,
-                borderColor: "rgba(201,162,39,0.3)",
-              }}
-            />
-            <button
-              className="px-6 py-3 text-xs tracking-[0.18em] uppercase font-medium w-full sm:w-auto"
-              style={{ background: GOLD, color: CHARCOAL, fontFamily: SANS }}
-            >
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </section>
+
     </main>
   );
 }

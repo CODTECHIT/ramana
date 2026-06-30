@@ -17,6 +17,13 @@ export const getProducts = async (req: Request, res: Response) => {
       }
       filter.category = category._id;
     }
+    if (req.query.search) {
+      const keyword = req.query.search as string;
+      filter.$or = [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } }
+      ];
+    }
     const products = await Product.find(filter).populate("category", "name slug");
     res.status(200).json(products);
   } catch (error) {

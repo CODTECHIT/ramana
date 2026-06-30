@@ -17,7 +17,7 @@ export interface IOrder extends Document {
   shippingFee: number;
   tax: number;
   total: number;
-  status: "Processing" | "Shipped" | "Delivered" | "Cancelled";
+  status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
   shippingAddress: {
     street: string;
     city: string;
@@ -25,6 +25,12 @@ export interface IOrder extends Document {
     pin: string;
   };
   paymentMethod: string;
+  razorpayOrderId?: string;
+  paymentDetails?: {
+    transactionId: string;
+  };
+  trackingId?: string;
+  courierPartner?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,7 +62,7 @@ const OrderSchema: Schema = new Schema(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["Processing", "Shipped", "Delivered", "Cancelled"],
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
       default: "Processing",
       index: true,
     },
@@ -67,6 +73,12 @@ const OrderSchema: Schema = new Schema(
       pin: { type: String, required: true },
     },
     paymentMethod: { type: String, required: true },
+    razorpayOrderId: { type: String },
+    paymentDetails: {
+      transactionId: { type: String },
+    },
+    trackingId: { type: String },
+    courierPartner: { type: String },
   },
   {
     timestamps: true,

@@ -19,13 +19,16 @@ function StorefrontWrapper({ children }: { children: React.ReactNode }) {
 }
 
 import { AuthProvider } from "../../components/AuthProvider";
+import { WishlistProvider } from "../../components/WishlistProvider";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <CartProvider>
-        <StorefrontWrapper>{children}</StorefrontWrapper>
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <StorefrontWrapper>{children}</StorefrontWrapper>
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 }

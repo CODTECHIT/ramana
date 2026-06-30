@@ -6,6 +6,8 @@ export interface IUser extends Document {
   name: string;
   role: "admin" | "customer";
   refreshTokenHash?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +19,8 @@ const UserSchema: Schema = new Schema(
     name: { type: String, required: true },
     role: { type: String, enum: ["admin", "customer"], default: "customer" },
     refreshTokenHash: { type: String }, // Stored hash for refresh token rotation
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   {
     timestamps: true,

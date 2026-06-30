@@ -13,6 +13,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin/ramana/login", request.url));
     }
 
+    if (!process.env.JWT_ACCESS_SECRET) {
+      console.error("❌ JWT_ACCESS_SECRET is not defined in the frontend environment (root .env).");
+      return NextResponse.redirect(new URL("/admin/ramana/login", request.url));
+    }
+
     try {
       // Decode JWT at the edge using jose
       const secret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
@@ -20,11 +25,13 @@ export async function middleware(request: NextRequest) {
 
       // Verify the role is admin
       if (payload.role !== "admin") {
+        console.warn(`⚠️ Non-admin access attempt (role: ${payload.role})`);
         return NextResponse.redirect(new URL("/admin/ramana/login", request.url));
       }
 
       return NextResponse.next();
     } catch (err) {
+      console.error("❌ JWT validation failed:", err);
       // Token expired or invalid
       return NextResponse.redirect(new URL("/admin/ramana/login", request.url));
     }

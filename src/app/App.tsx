@@ -53,49 +53,49 @@ const SANS = "'Inter', system-ui, sans-serif";
 
 // ─── Image URLs ───────────────────────────────────────────────────────────────
 const I = {
-  hero:      heroImage.src,
-  bride1:    "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?w=800&h=1000&fit=crop&auto=format",
-  necklace:  "https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=600&h=750&fit=crop&auto=format",
-  bangles:   "https://images.unsplash.com/photo-1587271511223-18b7ef9a327a?w=600&h=600&fit=crop&auto=format",
-  tikka:     "https://images.unsplash.com/photo-1600685890506-593fdf55949b?w=600&h=750&fit=crop&auto=format",
+  hero: heroImage.src,
+  bride1: "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?w=800&h=1000&fit=crop&auto=format",
+  necklace: "https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=600&h=750&fit=crop&auto=format",
+  bangles: "https://images.unsplash.com/photo-1587271511223-18b7ef9a327a?w=600&h=600&fit=crop&auto=format",
+  tikka: "https://images.unsplash.com/photo-1600685890506-593fdf55949b?w=600&h=750&fit=crop&auto=format",
   headdress: "https://images.unsplash.com/photo-1665960212625-3c6b274222ed?w=600&h=750&fit=crop&auto=format",
   greenSari: "https://images.unsplash.com/photo-1679006831648-7c9ea12e5807?w=600&h=750&fit=crop&auto=format",
-  haaram:    "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=750&fit=crop&auto=format",
+  haaram: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&h=750&fit=crop&auto=format",
   goldChain: "https://images.unsplash.com/photo-1611107683227-e9060eccd846?w=600&h=750&fit=crop&auto=format",
-  rings:     "https://images.unsplash.com/photo-1543294001-f7cd5d7fb516?w=600&h=600&fit=crop&auto=format",
-  redBeads:  "https://images.unsplash.com/photo-1617191880362-aac615de3c26?w=600&h=600&fit=crop&auto=format",
-  snake:     "https://images.unsplash.com/photo-1705326452395-1d35e6add570?w=600&h=600&fit=crop&auto=format",
-  greenEar:  "https://images.unsplash.com/photo-1594140700520-8afea3283e2c?w=600&h=750&fit=crop&auto=format",
-  display:   "https://images.unsplash.com/photo-1758995115857-2de1eb6283d0?w=600&h=600&fit=crop&auto=format",
-  bride2:    "https://images.unsplash.com/photo-1669257965114-225af79f3455?w=600&h=750&fit=crop&auto=format",
+  rings: "https://images.unsplash.com/photo-1543294001-f7cd5d7fb516?w=600&h=600&fit=crop&auto=format",
+  redBeads: "https://images.unsplash.com/photo-1617191880362-aac615de3c26?w=600&h=600&fit=crop&auto=format",
+  snake: "https://images.unsplash.com/photo-1705326452395-1d35e6add570?w=600&h=600&fit=crop&auto=format",
+  greenEar: "https://images.unsplash.com/photo-1594140700520-8afea3283e2c?w=600&h=750&fit=crop&auto=format",
+  display: "https://images.unsplash.com/photo-1758995115857-2de1eb6283d0?w=600&h=600&fit=crop&auto=format",
+  bride2: "https://images.unsplash.com/photo-1669257965114-225af79f3455?w=600&h=750&fit=crop&auto=format",
 };
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { name: "Necklaces",        img: I.necklace  },
-  { name: "Long Harams",      img: I.haaram    },
-  { name: "Hipbelts",         img: I.greenSari },
-  { name: "Tikkas",           img: I.tikka     },
+  { name: "Necklaces", img: I.necklace },
+  { name: "Long Harams", img: I.haaram },
+  { name: "Hipbelts", img: I.greenSari },
+  { name: "Tikkas", img: I.tikka },
   { name: "Hair Accessories", img: I.headdress },
-  { name: "Bangles",          img: I.bangles   },
-  { name: "Bridal Sets",      img: I.bride1    },
+  { name: "Bangles", img: I.bangles },
+  { name: "Bridal Sets", img: I.bride1 },
 ];
 
 const PRODUCTS: Product[] = [
-  { id: 1, name: "Kancheepuram Bridal Necklace",   price: 284500, img: I.necklace,  img2: I.goldChain, tag: "Bestseller", weight: "45.2g", category: "Necklaces"        },
-  { id: 2, name: "Lakshmi Temple Haaram",           price: 156800, img: I.haaram,   img2: I.redBeads,  tag: "New",        weight: "62.1g", category: "Long Harams"       },
-  { id: 3, name: "Bridal Vanki Hipbelt",            price: 198400, img: I.bangles,  img2: I.snake,     tag: "Bestseller", weight: "38.7g", category: "Hipbelts"          },
-  { id: 4, name: "Maang Tikka with Pearls",         price:  48900, img: I.tikka,    img2: I.greenEar,  tag: "",           weight: "12.3g", category: "Tikkas"            },
-  { id: 5, name: "Bridal Jadanagam Set",            price:  92300, img: I.headdress,img2: I.bride1,    tag: "New",        weight: "28.5g", category: "Hair Accessories"  },
-  { id: 6, name: "Panchaloha Bangles",              price:  74600, img: I.snake,    img2: I.bangles,   tag: "",           weight: "22.8g", category: "Bangles"           },
-  { id: 7, name: "Complete Bridal Jewellery Set",   price: 895000, img: I.bride1,   img2: I.bride2,    tag: "Bestseller", weight: "185.4g", category: "Bridal Sets"      },
-  { id: 8, name: "22KT Gold Chain Necklace",        price:  68200, img: I.goldChain,img2: I.display,   tag: "",           weight: "18.9g", category: "Necklaces"         },
+  { id: 1, name: "Kancheepuram Bridal Necklace", price: 284500, img: I.necklace, img2: I.goldChain, tag: "Bestseller", weight: "45.2g", category: "Necklaces" },
+  { id: 2, name: "Lakshmi Temple Haaram", price: 156800, img: I.haaram, img2: I.redBeads, tag: "New", weight: "62.1g", category: "Long Harams" },
+  { id: 3, name: "Bridal Vanki Hipbelt", price: 198400, img: I.bangles, img2: I.snake, tag: "Bestseller", weight: "38.7g", category: "Hipbelts" },
+  { id: 4, name: "Maang Tikka with Pearls", price: 48900, img: I.tikka, img2: I.greenEar, tag: "", weight: "12.3g", category: "Tikkas" },
+  { id: 5, name: "Bridal Jadanagam Set", price: 92300, img: I.headdress, img2: I.bride1, tag: "New", weight: "28.5g", category: "Hair Accessories" },
+  { id: 6, name: "Panchaloha Bangles", price: 74600, img: I.snake, img2: I.bangles, tag: "", weight: "22.8g", category: "Bangles" },
+  { id: 7, name: "Complete Bridal Jewellery Set", price: 895000, img: I.bride1, img2: I.bride2, tag: "Bestseller", weight: "185.4g", category: "Bridal Sets" },
+  { id: 8, name: "22KT Gold Chain Necklace", price: 68200, img: I.goldChain, img2: I.display, tag: "", weight: "18.9g", category: "Necklaces" },
 ];
 
 const COLLECTIONS = [
-  { title: "The Bridal Edit",    desc: "Curated sets for the modern Indian bride. Temple-inspired motifs hand-crafted in 22KT gold.",                                        img: I.bride1,    cta: "Explore Collection" },
-  { title: "Temple Jewellery",   desc: "Sacred motifs from Kancheepuram and Thanjavur — Lakshmi, Gaja and peacock rendered in repousse gold.",                               img: I.redBeads,  cta: "View Collection"    },
-  { title: "Everyday Gold",      desc: "Understated pieces for daily wear. Lightweight, BIS hallmarked, and built to last a lifetime.",                                       img: I.goldChain, cta: "Shop Now"           },
+  { title: "The Bridal Edit", desc: "Curated sets for the modern Indian bride. Temple-inspired motifs hand-crafted in 22KT gold.", img: I.bride1, cta: "Explore Collection" },
+  { title: "Temple Jewellery", desc: "Sacred motifs from Kancheepuram and Thanjavur — Lakshmi, Gaja and peacock rendered in repousse gold.", img: I.redBeads, cta: "View Collection" },
+  { title: "Everyday Gold", desc: "Understated pieces for daily wear. Lightweight, BIS hallmarked, and built to last a lifetime.", img: I.goldChain, cta: "Shop Now" },
 ];
 
 const TICKER = [
@@ -118,20 +118,20 @@ const ORDERS_DATA = [
 ];
 
 const RECENT_ORDERS = [
-  { id: "#JW-8841", customer: "Priya Ramamurthy",   item: "Complete Bridal Set",        amount: "₹8,95,000", status: "Processing", date: "23 Jun 2026" },
-  { id: "#JW-8840", customer: "Kavitha Subramanian", item: "Kancheepuram Necklace",      amount: "₹2,84,500", status: "Shipped",     date: "23 Jun 2026" },
-  { id: "#JW-8839", customer: "Meenakshi Iyer",      item: "Lakshmi Temple Haaram",      amount: "₹1,56,800", status: "Delivered",   date: "22 Jun 2026" },
-  { id: "#JW-8838", customer: "Ananya Krishnan",     item: "Panchaloha Bangles",         amount: "₹74,600",   status: "Delivered",   date: "22 Jun 2026" },
-  { id: "#JW-8837", customer: "Sowmya Venkatesh",    item: "Maang Tikka Set",            amount: "₹48,900",   status: "Processing", date: "21 Jun 2026" },
+  { id: "#JW-8841", customer: "Priya Ramamurthy", item: "Complete Bridal Set", amount: "₹8,95,000", status: "Processing", date: "23 Jun 2026" },
+  { id: "#JW-8840", customer: "Kavitha Subramanian", item: "Kancheepuram Necklace", amount: "₹2,84,500", status: "Shipped", date: "23 Jun 2026" },
+  { id: "#JW-8839", customer: "Meenakshi Iyer", item: "Lakshmi Temple Haaram", amount: "₹1,56,800", status: "Delivered", date: "22 Jun 2026" },
+  { id: "#JW-8838", customer: "Ananya Krishnan", item: "Panchaloha Bangles", amount: "₹74,600", status: "Delivered", date: "22 Jun 2026" },
+  { id: "#JW-8837", customer: "Sowmya Venkatesh", item: "Maang Tikka Set", amount: "₹48,900", status: "Processing", date: "21 Jun 2026" },
 ];
 
 const ADMIN_PRODUCTS = [
-  { name: "Kancheepuram Bridal Necklace", category: "Necklaces",        stock: 3,  price: "₹2,84,500", active: true,  img: I.necklace   },
-  { name: "Lakshmi Temple Haaram",        category: "Long Harams",      stock: 8,  price: "₹1,56,800", active: true,  img: I.haaram     },
-  { name: "Bridal Vanki Hipbelt",         category: "Hipbelts",         stock: 2,  price: "₹1,98,400", active: true,  img: I.bangles    },
-  { name: "Maang Tikka with Pearls",      category: "Tikkas",           stock: 14, price: "₹48,900",   active: false, img: I.tikka      },
-  { name: "Bridal Jadanagam Set",         category: "Hair Accessories", stock: 6,  price: "₹92,300",   active: true,  img: I.headdress  },
-  { name: "Complete Bridal Jewellery Set",category: "Bridal Sets",      stock: 1,  price: "₹8,95,000", active: true,  img: I.bride1     },
+  { name: "Kancheepuram Bridal Necklace", category: "Necklaces", stock: 3, price: "₹2,84,500", active: true, img: I.necklace },
+  { name: "Lakshmi Temple Haaram", category: "Long Harams", stock: 8, price: "₹1,56,800", active: true, img: I.haaram },
+  { name: "Bridal Vanki Hipbelt", category: "Hipbelts", stock: 2, price: "₹1,98,400", active: true, img: I.bangles },
+  { name: "Maang Tikka with Pearls", category: "Tikkas", stock: 14, price: "₹48,900", active: false, img: I.tikka },
+  { name: "Bridal Jadanagam Set", category: "Hair Accessories", stock: 6, price: "₹92,300", active: true, img: I.headdress },
+  { name: "Complete Bridal Jewellery Set", category: "Bridal Sets", stock: 1, price: "₹8,95,000", active: true, img: I.bride1 },
 ];
 
 // ─── Shared Components ────────────────────────────────────────────────────────
@@ -143,12 +143,12 @@ function GoldDivider() {
       <div className="mx-5 flex flex-col items-center justify-center relative" style={{ color: GOLD }}>
         <svg width="48" height="48" viewBox="0 0 64 64" fill="currentColor">
           {/* Coconut */}
-          <path d="M32 4 C28 4 24 10 24 14 C24 14 28 16 32 16 C36 16 40 14 40 14 C40 10 36 4 32 4 Z"/>
+          <path d="M32 4 C28 4 24 10 24 14 C24 14 28 16 32 16 C36 16 40 14 40 14 C40 10 36 4 32 4 Z" />
           {/* Mango Leaves */}
-          <path d="M24 14 C16 10 8 12 8 12 C8 12 12 20 20 22 C22 23 24 22 24 22 Z"/>
-          <path d="M40 14 C48 10 56 12 56 12 C56 12 52 20 44 22 C42 23 40 22 40 22 Z"/>
-          <path d="M21 16 C12 15 4 20 4 20 C4 20 10 27 18 26 C20 25 21 24 21 24 Z"/>
-          <path d="M43 16 C52 15 60 20 60 20 C60 20 54 27 46 26 C44 25 43 24 43 24 Z"/>
+          <path d="M24 14 C16 10 8 12 8 12 C8 12 12 20 20 22 C22 23 24 22 24 22 Z" />
+          <path d="M40 14 C48 10 56 12 56 12 C56 12 52 20 44 22 C42 23 40 22 40 22 Z" />
+          <path d="M21 16 C12 15 4 20 4 20 C4 20 10 27 18 26 C20 25 21 24 21 24 Z" />
+          <path d="M43 16 C52 15 60 20 60 20 C60 20 54 27 46 26 C44 25 43 24 43 24 Z" />
           {/* Kalash Pot Body */}
           <path d="M22 22 C12 22 10 36 10 42 C10 52 20 56 32 56 C44 56 54 52 54 42 C54 36 52 22 42 22 L22 22 Z" />
           {/* Intricate Swastika / Pattern inside the pot */}
@@ -475,8 +475,8 @@ function Header({
 
 function Footer({ setPage }: { setPage: (p: Page) => void }) {
   const cols = [
-    { title: "Shop",    items: ["Necklaces", "Long Harams", "Bangles", "Bridal Sets", "Hipbelts", "Tikkas"] },
-    { title: "Brand",   items: ["Our Story", "Craftsmanship", "BIS Hallmark", "Karigar Partners", "Blog"] },
+    { title: "Shop", items: ["Necklaces", "Long Harams", "Bangles", "Bridal Sets", "Hipbelts", "Tikkas"] },
+    { title: "Brand", items: ["Our Story", "Craftsmanship", "BIS Hallmark", "Karigar Partners", "Blog"] },
     { title: "Support", items: ["Contact Us", "FAQ", "Shipping & Returns", "Sizing Guide", "WhatsApp"] },
   ];
 
@@ -568,10 +568,10 @@ function HomePage({
   onAddToCart: (p: Product) => void;
 }) {
   const TRUST = [
-    { icon: Shield,     label: "BIS Hallmark Certified" },
-    { icon: RefreshCcw, label: "Lifetime Exchange"       },
-    { icon: CreditCard, label: "Secure Payments"         },
-    { icon: Truck,      label: "Easy Returns"            },
+    { icon: Shield, label: "BIS Hallmark Certified" },
+    { icon: RefreshCcw, label: "Lifetime Exchange" },
+    { icon: CreditCard, label: "Secure Payments" },
+    { icon: Truck, label: "Easy Returns" },
   ];
 
   return (
@@ -779,41 +779,7 @@ function HomePage({
         </div>
       </div>
 
-      {/* ── Newsletter ────────────────────────────────────────────────────── */}
-      <section className="py-20" style={{ background: CHARCOAL }}>
-        <div className="max-w-lg mx-auto px-6 text-center">
-          <SectionEyebrow>Stay Connected</SectionEyebrow>
-          <h2
-            className="text-3xl font-normal mb-4"
-            style={{ fontFamily: SERIF, color: IVORY }}
-          >
-            The Swarna Mahal Circle
-          </h2>
-          <p className="text-sm leading-relaxed mb-8" style={{ color: "rgba(250,247,242,0.55)", fontFamily: SANS }}>
-            Receive early access to new collections, exclusive offers, and invitations to private trunk shows.
-          </p>
-          <div className="flex">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-4 py-3 text-sm outline-none"
-              style={{
-                background: "rgba(250,247,242,0.07)",
-                color: IVORY,
-                fontFamily: SANS,
-                border: `1px solid rgba(201,162,39,0.3)`,
-                borderRight: "none",
-              }}
-            />
-            <button
-              className="px-6 py-3 text-xs tracking-[0.18em] uppercase font-medium"
-              style={{ background: GOLD, color: CHARCOAL, fontFamily: SANS }}
-            >
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </section>
+
     </main>
   );
 }
@@ -831,8 +797,8 @@ function CategoryPage({
   const [selected, setSelected] = useState<string[]>([]);
 
   const occasions = ["Bridal", "Festival", "Daily Wear", "Engagement", "Anniversary"];
-  const purities  = ["22KT", "18KT", "24KT"];
-  const toggle    = (o: string) =>
+  const purities = ["22KT", "18KT", "24KT"];
+  const toggle = (o: string) =>
     setSelected((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
 
   return (
@@ -1255,8 +1221,8 @@ function CartPage({
   const [pay, setPay] = useState("upi");
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const shipping  = subtotal > 500000 ? 0 : 299;
-  const total     = subtotal + shipping;
+  const shipping = 0;
+  const total = subtotal + shipping;
 
   const updateQty = (id: number, d: number) =>
     setCart(cart.map((i) => (i.id === id ? { ...i, qty: Math.max(1, i.qty + d) } : i)));
@@ -1265,10 +1231,10 @@ function CartPage({
   const STEPS = ["Cart", "Address", "Payment"];
 
   const PAY_METHODS = [
-    { id: "upi",        label: "UPI (PhonePe, GPay, Paytm)", desc: "Instant transfer, no extra charges"    },
-    { id: "netbanking", label: "Net Banking",                 desc: "All major banks supported"              },
-    { id: "card",       label: "Credit / Debit Card",         desc: "Visa, Mastercard, RuPay — 0% EMI"      },
-    { id: "cod",        label: "Cash on Delivery",            desc: "Pay when your jewellery arrives"        },
+    { id: "upi", label: "UPI (PhonePe, GPay, Paytm)", desc: "Instant transfer, no extra charges" },
+    { id: "netbanking", label: "Net Banking", desc: "All major banks supported" },
+    { id: "card", label: "Credit / Debit Card", desc: "Visa, Mastercard, RuPay — 0% EMI" },
+    { id: "cod", label: "Cash on Delivery", desc: "Pay when your jewellery arrives" },
   ];
 
   const STATES = ["Tamil Nadu", "Karnataka", "Andhra Pradesh", "Kerala", "Maharashtra", "Delhi", "Telangana"];
@@ -1368,11 +1334,11 @@ function CartPage({
                 <h2 className="text-2xl font-normal mb-6" style={{ fontFamily: SERIF, color: CHARCOAL }}>Delivery Address</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { key: "name",   label: "Full Name",       placeholder: "Priya Ramamurthy",      span: 1 },
-                    { key: "phone",  label: "Mobile Number",   placeholder: "+91 98400 12345",        span: 1 },
-                    { key: "street", label: "Street Address",  placeholder: "42, Anna Nagar Main Road", span: 2 },
-                    { key: "city",   label: "City",            placeholder: "Chennai",                span: 1 },
-                    { key: "pin",    label: "PIN Code",        placeholder: "600040",                 span: 1 },
+                    { key: "name", label: "Full Name", placeholder: "Priya Ramamurthy", span: 1 },
+                    { key: "phone", label: "Mobile Number", placeholder: "+91 98400 12345", span: 1 },
+                    { key: "street", label: "Street Address", placeholder: "42, Anna Nagar Main Road", span: 2 },
+                    { key: "city", label: "City", placeholder: "Chennai", span: 1 },
+                    { key: "pin", label: "PIN Code", placeholder: "600040", span: 1 },
                   ].map((f) => (
                     <div key={f.key} className={f.span === 2 ? "col-span-2" : ""}>
                       <label className="block text-xs tracking-wider uppercase mb-1.5" style={{ color: CHARCOAL, fontFamily: SANS }}>
@@ -1515,20 +1481,20 @@ function AdminPage({ setPage }: { setPage: (p: Page) => void }) {
   const [section, setSection] = useState("dashboard");
 
   const NAV = [
-    { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
-    { id: "products",  label: "Products",   icon: Package          },
-    { id: "categories",label: "Categories", icon: Tag              },
-    { id: "orders",    label: "Orders",     icon: CartIcon         },
-    { id: "customers", label: "Customers",  icon: Users            },
-    { id: "banners",   label: "Banners",    icon: ImageIcon        },
-    { id: "reports",   label: "Reports",    icon: BarChart2        },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "products", label: "Products", icon: Package },
+    { id: "categories", label: "Categories", icon: Tag },
+    { id: "orders", label: "Orders", icon: CartIcon },
+    { id: "customers", label: "Customers", icon: Users },
+    { id: "banners", label: "Banners", icon: ImageIcon },
+    { id: "reports", label: "Reports", icon: BarChart2 },
   ];
 
   const METRICS = [
-    { label: "Total Orders",      value: "2,841",   change: "+12.4%",          up: true,  icon: ShoppingBag    },
-    { label: "Revenue (Jun)",     value: "₹61.8L",  change: "+18.1%",          up: true,  icon: TrendingUp     },
-    { label: "Low Stock Items",   value: "7",        change: "−2 from last week", up: false, icon: AlertCircle  },
-    { label: "New Customers",     value: "148",      change: "+8.3%",           up: true,  icon: Users          },
+    { label: "Total Orders", value: "2,841", change: "+12.4%", up: true, icon: ShoppingBag },
+    { label: "Revenue (Jun)", value: "₹61.8L", change: "+18.1%", up: true, icon: TrendingUp },
+    { label: "Low Stock Items", value: "7", change: "−2 from last week", up: false, icon: AlertCircle },
+    { label: "New Customers", value: "148", change: "+8.3%", up: true, icon: Users },
   ];
 
   return (
@@ -1696,7 +1662,7 @@ function AdminPage({ setPage }: { setPage: (p: Page) => void }) {
                             className="text-xs px-2 py-1 rounded-full"
                             style={{
                               background: o.status === "Delivered" ? "#dcfce7" : o.status === "Shipped" ? "#dbeafe" : "#fef9c3",
-                              color:      o.status === "Delivered" ? "#16a34a" : o.status === "Shipped" ? "#2563eb" : "#ca8a04",
+                              color: o.status === "Delivered" ? "#16a34a" : o.status === "Shipped" ? "#2563eb" : "#ca8a04",
                               fontFamily: SANS,
                             }}
                           >
@@ -1826,7 +1792,7 @@ export default function App() {
     });
   };
 
-  const cartCount   = cart.reduce((s, i) => s + i.qty, 0);
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const isStorefront = page !== "admin";
 
   return (
@@ -1848,11 +1814,11 @@ export default function App() {
           </>
         )}
 
-        {page === "home"     && <HomePage     setPage={setPage} onAddToCart={addToCart} />}
+        {page === "home" && <HomePage setPage={setPage} onAddToCart={addToCart} />}
         {page === "category" && <CategoryPage setPage={setPage} onAddToCart={addToCart} />}
-        {page === "product"  && <ProductPage  setPage={setPage} onAddToCart={addToCart} />}
-        {page === "cart"     && <CartPage     cart={cart} setCart={setCart} setPage={setPage} />}
-        {page === "admin"    && <AdminPage    setPage={setPage} />}
+        {page === "product" && <ProductPage setPage={setPage} onAddToCart={addToCart} />}
+        {page === "cart" && <CartPage cart={cart} setCart={setCart} setPage={setPage} />}
+        {page === "admin" && <AdminPage setPage={setPage} />}
 
         {isStorefront && <Footer setPage={setPage} />}
       </div>

@@ -25,7 +25,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/auth/login", {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -33,8 +33,13 @@ export default function LoginForm() {
       });
 
       if (res.ok) {
+        const data = await res.json();
         await checkAuth();
-        router.push(redirectUrl);
+        if (data.user?.role === "admin") {
+          router.push("/admin/ramana/dashboard");
+        } else {
+          router.push(redirectUrl);
+        }
       } else {
         const data = await res.json();
         setError(data.message || "Invalid credentials");

@@ -43,8 +43,8 @@ export default function ProductPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`http://127.0.0.1:5000/api/products/${slug}`).then((r) => r.json()),
-      fetch("http://127.0.0.1:5000/api/products").then((r) => r.json()),
+      fetch(`http://localhost:5000/api/products/${slug}`).then((r) => r.json()),
+      fetch("http://localhost:5000/api/products").then((r) => r.json()),
     ])
       .then(([p, all]) => {
         setProduct(p);
@@ -68,7 +68,7 @@ export default function ProductPage() {
       id: "details",
       label: "Product Details",
       content:
-        "Crafted in 22KT BIS Hallmark certified gold. Stone: Uncut polypki diamonds and natural rubies. Setting: Traditional Thewa work with meenakari enamel on reverse. Finish: Antique matte with selective polished highlights. Total gold weight: 45.2g. Dimensions: 48cm chain length, pendant 6.2cm × 4.8cm.",
+        product.details || "Premium gold finish. Intricately hand-crafted set with traditional kemp ruby work and delicate pearl beads. Perfect for weddings, festivals, and special occasions.",
     },
     {
       id: "care",
@@ -89,7 +89,7 @@ export default function ProductPage() {
     "Matching jhumka earrings",
     "Velvet jewellery box",
     "Authenticity certificate",
-    "BIS Hallmark assay card",
+    "Care & storage guide",
   ];
 
   return (
@@ -114,9 +114,9 @@ export default function ProductPage() {
           <span style={{ color: CHARCOAL }}>{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-14 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
           {/* Image gallery */}
-          <div>
+          <div className="md:col-span-5">
             <div
               className="relative overflow-hidden mb-3"
               style={{ aspectRatio: "3/4", background: MIST }}
@@ -157,12 +157,12 @@ export default function ProductPage() {
           </div>
 
           {/* Product info */}
-          <div className="px-6 md:px-0">
+          <div className="md:col-span-7 px-6 md:px-0">
             <p
               className="text-xs tracking-widest uppercase mb-2"
               style={{ color: GOLD, fontFamily: SANS }}
             >
-              {product.category?.name || "Category"} · 22KT Gold
+              {product.category?.name || "Category"} · Premium Finish
             </p>
             <h1
               className="text-3xl font-normal leading-snug mb-3"
@@ -207,7 +207,7 @@ export default function ProductPage() {
               style={{ color: SMOKE, fontFamily: SANS }}
             >
               {product.description ||
-                "An heirloom-grade bridal piece inspired by the architectural splendour of South Indian temples. Crafted in 22KT gold."}
+                "An heirloom-grade bridal piece inspired by the architectural splendour of South Indian temples. Crafted in premium gold finish."}
             </p>
 
             {/* Chain length */}
@@ -335,8 +335,8 @@ export default function ProductPage() {
             {/* Mini trust */}
             <div className="grid grid-cols-2 gap-y-2 gap-x-4">
               {[
-                "BIS Hallmark 916",
-                "Lifetime Exchange",
+                "Premium Finish Quality",
+                "Care & storage guide",
                 "Free Insured Shipping",
                 "Secure Checkout",
               ].map((t) => (
