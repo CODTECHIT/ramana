@@ -1,5 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { Plus, Check, Trash2, Shield, Smartphone, CreditCard, Building2 } from "lucide-react";
+import { PageHeader } from "../../../../components/dashboard/DashboardUI";
+import { Constants } from "../../../../lib/mock-data";
+
+const { GOLD, CHARCOAL, IVORY, MIST, SMOKE, SANS, SERIF } = Constants;
+
 const API = "http://localhost:5000";
 
 const MOCK_TRANSACTIONS = [

@@ -62,20 +62,23 @@ export function GoldBtn({
   outline = false,
   full = false,
   sm = false,
+  disabled = false,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   outline?: boolean;
   full?: boolean;
   sm?: boolean;
+  disabled?: boolean;
 }) {
   const [hov, setHov] = useState(false);
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      className={`${full ? "w-full" : ""} ${sm ? "px-5 py-2 text-xs" : "px-8 py-3 text-xs"} tracking-[0.18em] uppercase font-medium transition-all duration-300`}
+      className={`${full ? "w-full" : ""} ${sm ? "px-5 py-2 text-xs" : "px-8 py-3 text-xs"} tracking-[0.18em] uppercase font-medium transition-all duration-300 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       style={{
         fontFamily: SANS,
         background: outline ? "transparent" : hov ? DARK_GOLD : GOLD,
