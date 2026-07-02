@@ -39,6 +39,7 @@ interface Order {
   };
   paymentMethod: string;
   trackingId?: string;
+  trackingLink?: string;
   courierPartner?: string;
   createdAt: string;
 }
@@ -48,8 +49,9 @@ export default function OrderManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [trackingInput, setTrackingInput] = useState({ trackingId: "", courierPartner: "" });
+  const [trackingInput, setTrackingInput] = useState({ trackingId: "", courierPartner: "", trackingLink: "" });
   const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);
+  const [editingTrackingOrderId, setEditingTrackingOrderId] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -73,19 +75,19 @@ export default function OrderManager() {
     // When changing to Shipped, prompt for tracking details first
     if (newStatus === "Shipped") {
       setShippingOrderId(id);
-      setTrackingInput({ trackingId: "", courierPartner: "" });
+      setTrackingInput({ trackingId: "", courierPartner: "", trackingLink: "" });
       return;
     }
-    await submitStatusUpdate(id, newStatus, "", "");
+    await submitStatusUpdate(id, newStatus, "", "", "");
   };
 
-  const submitStatusUpdate = async (id: string, status: string, trackingId: string, courierPartner: string) => {
+  const submitStatusUpdate = async (id: string, status: string, trackingId: string, courierPartner: string, trackingLink: string) => {
     try {
       const res = await fetch(`http://localhost:5000/api/admin/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status, trackingId, courierPartner }),
+        body: JSON.stringify({ status, trackingId, courierPartner, trackingLink }),
       });
       if (!res.ok) {
         throw new Error("Failed to update status");
@@ -96,7 +98,8 @@ export default function OrderManager() {
         setSelectedOrder({ ...selectedOrder, ...updated });
       }
       setShippingOrderId(null);
-      setTrackingInput({ trackingId: "", courierPartner: "" });
+      setEditingTrackingOrderId(null);
+      setTrackingInput({ trackingId: "", courierPartner: "", trackingLink: "" });
     } catch (err) {
       alert("Error updating order status.");
     }
@@ -277,23 +280,48 @@ export default function OrderManager() {
               </div>
             </div>
 
-            {/* Tracking Info (if shipped) */}
-            {selectedOrder.trackingId && (
-              <div className="mt-4 p-4 rounded" style={{ background: "#f9f9f9", border: "1px solid rgba(201,162,39,0.15)" }}>
-                <h4 className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-2" style={{ fontFamily: SANS }}>Shipment Details</h4>
-                <p className="text-sm" style={{ fontFamily: SANS, color: "#374151" }}>Courier: <strong>{selectedOrder.courierPartner || "—"}</strong></p>
-                <p className="text-sm" style={{ fontFamily: SANS, color: "#374151" }}>Tracking ID: <strong style={{ color: GOLD }}>{selectedOrder.trackingId}</strong></p>
+            <div className="mt-4 p-4 rounded" style={{ background: "#f9f9f9", border: "1px solid rgba(201,162,39,0.15)" }}>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-xs uppercase tracking-wider text-gray-400 font-semibold" style={{ fontFamily: SANS }}>Shipment Details</h4>
+                <button 
+                  onClick={() => {
+                    setTrackingInput({
+                      trackingId: selectedOrder.trackingId || "",
+                      courierPartner: selectedOrder.courierPartner || "",
+                      trackingLink: selectedOrder.trackingLink || ""
+                    });
+                    setEditingTrackingOrderId(selectedOrder._id);
+                  }}
+                  className="text-xs font-semibold hover:underline" 
+                  style={{ color: GOLD }}
+                >
+                  {selectedOrder.trackingId ? "Edit Tracking" : "Add Tracking"}
+                </button>
               </div>
-            )}
+              
+              {selectedOrder.trackingId ? (
+                <>
+                  <p className="text-sm" style={{ fontFamily: SANS, color: "#374151" }}>Courier: <strong>{selectedOrder.courierPartner || "—"}</strong></p>
+                  <p className="text-sm" style={{ fontFamily: SANS, color: "#374151" }}>Tracking ID: <strong style={{ color: GOLD }}>{selectedOrder.trackingId}</strong></p>
+                  {selectedOrder.trackingLink && (
+                    <p className="text-sm mt-1" style={{ fontFamily: SANS }}>
+                      <a href={selectedOrder.trackingLink} target="_blank" rel="noopener noreferrer" style={{ color: "#2563eb", textDecoration: "underline" }}>Track Package</a>
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-gray-500" style={{ fontFamily: SANS }}>No tracking details added yet.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* Tracking ID Modal — shown when admin selects "Shipped" */}
-      {shippingOrderId && (
+      {(shippingOrderId || editingTrackingOrderId) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)" }}>
           <div className="bg-white w-full max-w-md p-6 rounded shadow-lg" style={{ fontFamily: SANS }}>
-            <h3 className="text-base font-semibold mb-1" style={{ color: "#1A1A2E" }}>Enter Shipment Details</h3>
+            <h3 className="text-base font-semibold mb-1" style={{ color: "#1A1A2E" }}>{editingTrackingOrderId ? "Update Shipment Details" : "Enter Shipment Details"}</h3>
             <p className="text-xs text-gray-400 mb-5">A tracking notification email will be sent to the customer.</p>
             <div className="space-y-4">
               <div>
@@ -316,23 +344,42 @@ export default function OrderManager() {
                   className="w-full border border-gray-200 px-3 py-2 rounded text-sm outline-none focus:border-yellow-500"
                 />
               </div>
+              <div>
+                <label className="block text-xs uppercase tracking-wider mb-1" style={{ color: "#374151" }}>Tracking Link</label>
+                <input
+                  type="url"
+                  placeholder="https://track.courier.com/..."
+                  value={trackingInput.trackingLink}
+                  onChange={(e) => setTrackingInput({ ...trackingInput, trackingLink: e.target.value })}
+                  className="w-full border border-gray-200 px-3 py-2 rounded text-sm outline-none focus:border-yellow-500"
+                />
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => {
-                  if (!trackingInput.trackingId.trim()) {
-                    alert("Tracking ID is required to mark an order as Shipped.");
+                  if (!trackingInput.trackingId.trim() || !trackingInput.trackingLink.trim()) {
+                    alert("Both Tracking ID and Tracking Link are required.");
                     return;
                   }
-                  submitStatusUpdate(shippingOrderId, "Shipped", trackingInput.trackingId, trackingInput.courierPartner);
+                  
+                  if (shippingOrderId) {
+                    submitStatusUpdate(shippingOrderId, "Shipped", trackingInput.trackingId, trackingInput.courierPartner, trackingInput.trackingLink);
+                  } else if (editingTrackingOrderId && selectedOrder) {
+                    submitStatusUpdate(editingTrackingOrderId, selectedOrder.status, trackingInput.trackingId, trackingInput.courierPartner, trackingInput.trackingLink);
+                  }
                 }}
                 className="flex-1 py-2.5 text-xs uppercase tracking-wider text-white rounded"
                 style={{ background: GOLD, color: "#1a1a2e", fontWeight: 600 }}
               >
-                Mark as Shipped
+                {editingTrackingOrderId ? "Save Tracking" : "Mark as Shipped"}
               </button>
               <button
-                onClick={() => { setShippingOrderId(null); setTrackingInput({ trackingId: "", courierPartner: "" }); }}
+                onClick={() => { 
+                  setShippingOrderId(null); 
+                  setEditingTrackingOrderId(null);
+                  setTrackingInput({ trackingId: "", courierPartner: "", trackingLink: "" }); 
+                }}
                 className="flex-1 py-2.5 text-xs uppercase tracking-wider rounded border border-gray-200 text-gray-500"
               >
                 Cancel

@@ -18,14 +18,16 @@ import {
 } from "../../../../components/SharedUI";
 import { ProductCard } from "../../../../components/ProductCard";
 import { useCart } from "../../../../components/CartProvider";
+import { useWishlist } from "../../../../components/WishlistProvider";
 import { I, Constants, fmt } from "../../../../lib/mock-data";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const { GOLD, CHARCOAL, IVORY, MIST, MAROON, SMOKE, SANS, SERIF } = Constants;
 
 export default function ProductPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params?.slug as string;
 
   const [product, setProduct] = useState<any>(null);
@@ -33,24 +35,35 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
+  const { toggleWishlist, inWishlist } = useWishlist();
 
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
-  const [size, setSize] = useState('18"');
+  const [size, setSize] = useState("");
   const [tab, setTab] = useState("details");
   const [setOpen, setSetOpen] = useState(true);
-  const [wished, setWished] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  const handleWhatsApp = () => {
+    if (!product || !whatsappNumber) return;
+    const message = `Hi! I'm interested in the ${product.name} (Rs. ${product.price}). Can you share more details?`;
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
+  };
 
   useEffect(() => {
     Promise.all([
       fetch(`http://localhost:5000/api/products/${slug}`).then((r) => r.json()),
       fetch("http://localhost:5000/api/products").then((r) => r.json()),
+      fetch("http://localhost:5000/api/settings").then((r) => r.json()),
     ])
-      .then(([p, all]) => {
+      .then(([p, all, settings]) => {
         setProduct(p);
         setRelated(
           all.filter((x: any) => x.active && x._id !== p._id).slice(0, 4),
         );
+        if (settings && settings.whatsappNumber) {
+          setWhatsappNumber(settings.whatsappNumber);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -61,7 +74,12 @@ export default function ProductPage() {
     return <div className="p-20 text-center">Product not found</div>;
 
   const imgs = product.images?.length ? product.images : [I.display];
-  const sizes = ['16"', '18"', '20"', '22"', '24"'];
+  const sizes = product.sizes?.length ? product.sizes : [];
+
+  // Update default size if available and not yet set
+  if (sizes.length > 0 && size === "" && !loading) {
+    setSize(sizes[0]);
+  }
 
   const TABS = [
     {
@@ -84,13 +102,7 @@ export default function ProductPage() {
     },
   ];
 
-  const SET_CONTENTS = [
-    "Necklace with extender chain",
-    "Matching jhumka earrings",
-    "Velvet jewellery box",
-    "Authenticity certificate",
-    "Care & storage guide",
-  ];
+  const setContents = product.setContents?.length ? product.setContents : [];
 
   return (
     <main style={{ background: IVORY, minHeight: "100vh" }}>
@@ -135,25 +147,27 @@ export default function ProductPage() {
                 </span>
               )}
             </div>
-            <div className="flex gap-2">
-              {imgs.map((img: string, i: number) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(i)}
-                  className="flex-1 overflow-hidden"
-                  style={{
-                    aspectRatio: "1",
-                    border: `1.5px solid ${activeImg === i ? GOLD : "transparent"}`,
-                  }}
-                >
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {imgs.length > 1 && (
+              <div className="flex gap-2">
+                {imgs.map((img: string, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImg(i)}
+                    className="flex-1 overflow-hidden"
+                    style={{
+                      aspectRatio: "1",
+                      border: `1.5px solid ${activeImg === i ? GOLD : "transparent"}`,
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product info */}
@@ -211,79 +225,83 @@ export default function ProductPage() {
             </p>
 
             {/* Chain length */}
-            <div className="mb-6">
-              <p
-                className="text-xs tracking-wider uppercase mb-3"
-                style={{ color: CHARCOAL, fontFamily: SANS }}
-              >
-                Size/Length: <strong>{size}</strong>
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className="px-3 py-1.5 text-xs transition-all"
-                    style={{
-                      border: `1px solid ${size === s ? GOLD : "rgba(36,31,26,0.2)"}`,
-                      background: size === s ? GOLD : "transparent",
-                      color: size === s ? IVORY : CHARCOAL,
-                      fontFamily: SANS,
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Set contents accordion */}
-            <div
-              className="mb-6"
-              style={{ border: `1px solid rgba(201,162,39,0.2)` }}
-            >
-              <button
-                className="w-full flex items-center justify-between px-4 py-3"
-                onClick={() => setSetOpen(!setOpen)}
-              >
-                <span
-                  className="text-xs tracking-wider uppercase"
+            {sizes.length > 0 && (
+              <div className="mb-6">
+                <p
+                  className="text-xs tracking-wider uppercase mb-3"
                   style={{ color: CHARCOAL, fontFamily: SANS }}
                 >
-                  Set Contents
-                </span>
-                <ChevronDown
-                  size={14}
-                  style={{
-                    color: GOLD,
-                    transform: setOpen ? "rotate(180deg)" : "none",
-                    transition: "transform 0.2s",
-                  }}
-                />
-              </button>
-              {setOpen && (
-                <div
-                  className="px-4 pb-4"
-                  style={{ borderTop: `1px solid rgba(201,162,39,0.12)` }}
-                >
-                  <ul className="mt-3 space-y-1.5">
-                    {SET_CONTENTS.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-center gap-2 text-sm"
-                        style={{ color: SMOKE, fontFamily: SANS }}
-                      >
-                        <Check
-                          size={11}
-                          style={{ color: GOLD, flexShrink: 0 }}
-                        />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  Size/Length: <strong>{size}</strong>
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {sizes.map((s: string) => (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      className="px-3 py-1.5 text-xs transition-all"
+                      style={{
+                        border: `1px solid ${size === s ? GOLD : "rgba(36,31,26,0.2)"}`,
+                        background: size === s ? GOLD : "transparent",
+                        color: size === s ? IVORY : CHARCOAL,
+                        fontFamily: SANS,
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Set contents accordion */}
+            {setContents.length > 0 && (
+              <div
+                className="mb-6"
+                style={{ border: `1px solid rgba(201,162,39,0.2)` }}
+              >
+                <button
+                  className="w-full flex items-center justify-between px-4 py-3"
+                  onClick={() => setSetOpen(!setOpen)}
+                >
+                  <span
+                    className="text-xs tracking-wider uppercase"
+                    style={{ color: CHARCOAL, fontFamily: SANS }}
+                  >
+                    Set Contents
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    style={{
+                      color: GOLD,
+                      transform: setOpen ? "rotate(180deg)" : "none",
+                      transition: "transform 0.2s",
+                    }}
+                  />
+                </button>
+                {setOpen && (
+                  <div
+                    className="px-4 pb-4"
+                    style={{ borderTop: `1px solid rgba(201,162,39,0.12)` }}
+                  >
+                    <ul className="mt-3 space-y-1.5">
+                      {setContents.map((item: string) => (
+                        <li
+                          key={item}
+                          className="flex items-center gap-2 text-sm"
+                          style={{ color: SMOKE, fontFamily: SANS }}
+                        >
+                          <Check
+                            size={11}
+                            style={{ color: GOLD, flexShrink: 0 }}
+                          />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Qty + CTA */}
             <div className="flex items-center gap-3 mb-4 flex-wrap">
@@ -310,27 +328,49 @@ export default function ProductPage() {
                   <Plus size={13} style={{ color: CHARCOAL }} />
                 </button>
               </div>
-              <GoldBtn onClick={() => addToCart(product)}>Add to Cart</GoldBtn>
+              <div className="flex gap-2">
+                <GoldBtn onClick={() => addToCart(product)}>Add to Cart</GoldBtn>
+                <button
+                  className="px-8 py-3 text-xs tracking-[0.18em] uppercase font-medium transition-all duration-300"
+                  style={{
+                    fontFamily: SANS,
+                    background: CHARCOAL,
+                    color: IVORY,
+                    border: `1px solid ${CHARCOAL}`,
+                  }}
+                  onClick={() => {
+                    addToCart(product);
+                    router.push("/cart");
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#333")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = CHARCOAL)}
+                >
+                  Buy Now
+                </button>
+              </div>
               <button
-                onClick={() => setWished(!wished)}
+                onClick={() => toggleWishlist(product)}
                 className="p-2.5 transition-colors"
                 style={{ border: `1px solid rgba(201,162,39,0.3)` }}
               >
                 <Heart
                   size={17}
-                  fill={wished ? MAROON : "none"}
-                  stroke={wished ? MAROON : CHARCOAL}
+                  fill={inWishlist(product.slug) ? MAROON : "none"}
+                  stroke={inWishlist(product.slug) ? MAROON : CHARCOAL}
                 />
               </button>
             </div>
 
             {/* WhatsApp */}
-            <button
-              className="w-full py-3 flex items-center justify-center gap-2 text-sm tracking-wide mb-6"
-              style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
-            >
-              <MessageCircle size={16} /> Enquire on WhatsApp
-            </button>
+            {whatsappNumber && (
+              <button
+                onClick={handleWhatsApp}
+                className="w-full py-3 flex items-center justify-center gap-2 text-sm tracking-wide mb-6"
+                style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
+              >
+                <MessageCircle size={16} /> Enquire on WhatsApp
+              </button>
+            )}
 
             {/* Mini trust */}
             <div className="grid grid-cols-2 gap-y-2 gap-x-4">
@@ -406,25 +446,38 @@ export default function ProductPage() {
 
       {/* Mobile Sticky Add to Cart */}
       <div
-        className="fixed bottom-0 left-0 right-0 p-4 z-50 md:hidden flex gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
+        className="fixed bottom-0 left-0 right-0 p-3 z-50 md:hidden flex gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
         style={{
           background: IVORY,
           borderTop: `1px solid rgba(201,162,39,0.12)`,
         }}
       >
         <button
-          className="flex-1 py-3 text-xs tracking-[0.18em] uppercase font-medium transition-opacity hover:opacity-90"
+          className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
           style={{ background: GOLD, color: IVORY, fontFamily: SANS }}
           onClick={() => addToCart(product)}
         >
           Add to Cart
         </button>
         <button
-          className="flex items-center justify-center p-3 transition-opacity hover:opacity-90"
-          style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
+          className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
+          style={{ background: CHARCOAL, color: IVORY, fontFamily: SANS }}
+          onClick={() => {
+            addToCart(product);
+            router.push("/cart");
+          }}
         >
-          <MessageCircle size={18} />
+          Buy Now
         </button>
+        {whatsappNumber && (
+          <button
+            onClick={handleWhatsApp}
+            className="flex items-center justify-center px-3 py-3 transition-opacity hover:opacity-90"
+            style={{ background: "#25D366", color: "#fff" }}
+          >
+            <MessageCircle size={18} />
+          </button>
+        )}
       </div>
     </main>
   );

@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import mongoSanitize from "express-mongo-sanitize";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -20,6 +21,7 @@ import adminReportRoutes from "./routes/adminReportRoutes.js";
 import collectionRoutes from "./routes/collectionRoutes.js";
 import adminCollectionRoutes from "./routes/adminCollectionRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
 import { Category } from "./models/Category.js";
 import { Collection } from "./models/Collection.js";
 import { Product } from "./models/Product.js";
@@ -32,17 +34,33 @@ const app = express();
 // Connect Database
 connectDB();
 
+// Webhook must be parsed as raw body before global express.json() applies
+app.use("/api/orders/webhook", express.raw({ type: "application/json" }));
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: true, credentials: true })); // Enable cookies cross-origin
+
+const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000"];
+app.use(cors({ 
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }, 
+  credentials: true 
+}));
+
 app.use(helmet());
+app.use(mongoSanitize());
 app.use(morgan("dev"));
 
 import rateLimit from "express-rate-limit";
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 5000, // Increased for development
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -64,6 +82,7 @@ app.use("/api/admin/reports", adminReportRoutes);
 app.use("/api/collections", collectionRoutes);
 app.use("/api/admin/collections", adminCollectionRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Health Check Route
 app.get("/health", (req, res) => {

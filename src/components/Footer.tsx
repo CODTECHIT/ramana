@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Instagram, Facebook, Twitter, Youtube, MessageCircle } from "lucide-react";
 import { Constants } from "../lib/mock-data";
 import Link from "next/link";
@@ -5,6 +8,17 @@ import Link from "next/link";
 const { GOLD, CHARCOAL, SANS, SERIF, IVORY } = Constants;
 
 export function Footer() {
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
+      })
+      .catch(() => {});
+  }, []);
+
   const cols = [
     { 
       title: "Shop", 
@@ -31,7 +45,7 @@ export function Footer() {
         { label: "Contact Us", href: "/contact" },
         { label: "FAQ", href: "/faq" },
         { label: "Shipping & Returns", href: "/shipping-and-returns" },
-        { label: "WhatsApp", href: "https://wa.me/919999999999", external: true },
+        ...(whatsappNumber ? [{ label: "WhatsApp", href: `https://wa.me/${whatsappNumber}`, external: true }] : []),
       ]
     },
   ];
@@ -70,15 +84,17 @@ export function Footer() {
                 </button>
               ))}
             </div>
-            <a
-              href="https://wa.me/919999999999"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
-              style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
-            >
-              <MessageCircle size={15} /> WhatsApp Us
-            </a>
+            {whatsappNumber && (
+              <a
+                href={`https://wa.me/${whatsappNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
+                style={{ background: "#25D366", color: "#fff", fontFamily: SANS }}
+              >
+                <MessageCircle size={15} /> WhatsApp Us
+              </a>
+            )}
           </div>
 
           {cols.map((col) => (

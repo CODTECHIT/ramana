@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { Constants, fmt } from "../lib/mock-data";
+import { useWishlist } from "./WishlistProvider";
 import { useRouter } from "next/navigation";
 
 const { GOLD, MAROON, IVORY, CHARCOAL, MIST, SMOKE, SANS, SERIF } = Constants;
@@ -16,7 +17,7 @@ export function ProductCard({
 }) {
   const router = useRouter();
   const [hov, setHov] = useState(false);
-  const [wished, setWished] = useState(false);
+  const { toggleWishlist, inWishlist } = useWishlist();
 
   const onNavigate = () => router.push(`/product/${product.slug}`);
 
@@ -65,9 +66,9 @@ export function ProductCard({
         <button
           className="absolute top-3 right-3 p-2"
           style={{ background: "rgba(250,247,242,0.9)" }}
-          onClick={(e) => { e.stopPropagation(); setWished(!wished); }}
+          onClick={(e) => { e.stopPropagation(); toggleWishlist(product); }}
         >
-          <Heart size={15} fill={wished ? MAROON : "none"} stroke={wished ? MAROON : CHARCOAL} />
+          <Heart size={15} fill={inWishlist(product.slug) ? MAROON : "none"} stroke={inWishlist(product.slug) ? MAROON : CHARCOAL} />
         </button>
 
         {/* Add to cart overlay */}

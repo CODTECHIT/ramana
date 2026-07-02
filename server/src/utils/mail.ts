@@ -185,6 +185,7 @@ export const sendTrackingUpdateEmail = async (order: any, customerEmail: string)
         <h4 style="margin: 0 0 10px 0; color: #1a1a2e;">Shipment Information</h4>
         <p style="margin: 5px 0; font-size: 14px;"><strong>Courier Partner:</strong> ${order.courierPartner || "Standard Express"}</p>
         <p style="margin: 5px 0; font-size: 14px;"><strong>Tracking ID:</strong> <span style="font-family: monospace; font-size: 15px; color: #C9A227;">${order.trackingId}</span></p>
+        ${order.trackingLink ? `<div style="margin-top: 15px;"><a href="${order.trackingLink}" style="background-color: #C9A227; color: #1a1a2e; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 14px;">Track Your Package</a></div>` : ''}
       </div>
 
       <p>Please note that it might take 24-48 hours for the tracking information to update on the courier portal.</p>

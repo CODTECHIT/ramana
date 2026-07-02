@@ -53,7 +53,7 @@ export const getProductBySlug = async (req: Request, res: Response) => {
 // @access  Admin
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, slug, price, stock, description, details, category, images, tags, active } = req.body;
+    const { name, slug, price, stock, description, details, category, images, tags, setContents, sizes, active } = req.body;
 
     const existingProduct = await Product.findOne({ slug });
     if (existingProduct) {
@@ -61,7 +61,7 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     const product = await Product.create({
-      name, slug, price, stock, description, details, category, images, tags, active
+      name, slug, price, stock, description, details, category, images, tags, setContents, sizes, active
     });
 
     res.status(201).json(product);

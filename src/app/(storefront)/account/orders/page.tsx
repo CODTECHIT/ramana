@@ -119,6 +119,9 @@ export default function OrdersPage() {
                   <div className="mt-3 p-2.5 rounded-lg flex items-center gap-2" style={{ background: `${GOLD}10` }}>
                     <span className="text-xs" style={{ color: SMOKE }}>Tracking ID:</span>
                     <span className="text-xs font-bold" style={{ color: GOLD }}>{order.trackingId}</span>
+                    {order.trackingLink && (
+                      <a href={order.trackingLink} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs font-semibold hover:underline" style={{ color: "#2563eb" }}>Track Package</a>
+                    )}
                   </div>
                 )}
 
@@ -153,12 +156,7 @@ export default function OrdersPage() {
                     </button>
                   </>
                 )}
-                {order.status === "Processing" && (
-                  <button className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium border transition-all hover:opacity-80"
-                    style={{ borderColor: "#f87171", color: "#dc2626" }}>
-                    <X size={12} /> Cancel Order
-                  </button>
-                )}
+
               </div>
             </div>
           ))}

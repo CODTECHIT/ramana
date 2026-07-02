@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   metalPurity?: string;
   occasionTags: string[];
   setContents: string[];
+  sizes?: string[];
   images: string[];
   active: boolean;
   tag?: string; // e.g. "Bestseller", "New"
@@ -30,6 +31,7 @@ const ProductSchema: Schema = new Schema(
     metalPurity: { type: String }, // e.g. "22KT"
     occasionTags: [{ type: String }],
     setContents: [{ type: String }],
+    sizes: [{ type: String }],
     images: [{ type: String }], // Cloudinary URLs
     active: { type: Boolean, default: true },
     tag: { type: String },

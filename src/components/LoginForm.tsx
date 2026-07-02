@@ -28,7 +28,7 @@ export default function LoginForm() {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, storefront: true }),
         credentials: "include",
       });
 
@@ -36,7 +36,7 @@ export default function LoginForm() {
         const data = await res.json();
         await checkAuth();
         if (data.user?.role === "admin") {
-          router.push("/admin/ramana/dashboard");
+          router.push("/admin/ramana");
         } else {
           router.push(redirectUrl);
         }

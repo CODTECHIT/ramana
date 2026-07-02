@@ -6,6 +6,7 @@ import { User } from "../models/User.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import { z } from "zod";
 import { sendOrderInvoiceEmail, sendTrackingUpdateEmail } from "../utils/mail.js";
 
 dotenv.config();
@@ -19,9 +20,23 @@ export const createOrder = async (req: Request, res: Response) => {
   try {
     const { items, shippingAddress, paymentMethod, guestInfo } = req.body;
 
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+    const itemSchema = z.object({
+      productId: z.string().optional(),
+      id: z.string().optional(),
+      qty: z.number().int().positive().min(1),
+      variant: z.string().optional(),
+      name: z.string().optional()
+    }).refine(data => data.productId || data.id, {
+      message: "Item must have either productId or id"
+    });
+
+    const parsedItems = z.array(itemSchema).safeParse(items);
+
+    if (!parsedItems.success || parsedItems.data.length === 0) {
+      return res.status(400).json({ message: "Invalid or empty cart items" });
     }
+
+    const validatedItems = parsedItems.data;
 
     let subtotal = 0;
     const resolvedItems = [];
@@ -46,7 +61,7 @@ export const createOrder = async (req: Request, res: Response) => {
     // Construct Bulk Operations for Atomic Update
     const bulkOps = [];
 
-    for (const item of items) {
+    for (const item of validatedItems) {
       const idOrSlug = item.productId || item.id;
       const product = productMap.get(idOrSlug.toString());
 
@@ -77,7 +92,7 @@ export const createOrder = async (req: Request, res: Response) => {
     // Execute atomic stock deduction
     if (bulkOps.length > 0) {
       const result = await Product.bulkWrite(bulkOps);
-      if (result.modifiedCount !== items.length) {
+      if (result.modifiedCount !== validatedItems.length) {
         return res.status(400).json({ message: "Race condition detected: Insufficient stock during checkout." });
       }
     }
@@ -102,15 +117,13 @@ export const createOrder = async (req: Request, res: Response) => {
 
     if (req.user) {
       orderData.customer = req.user.id;
-    } else if (guestInfo) {
-      orderData.guestInfo = guestInfo;
     } else {
       // Revert stock if auth fails
       const revertOps = bulkOps.map(op => ({
         updateOne: { filter: op.updateOne.filter, update: { $inc: { stock: op.updateOne.update.$inc.stock * -1 } } }
       }));
       await Product.bulkWrite(revertOps);
-      return res.status(400).json({ message: "No checkout identity provided" });
+      return res.status(401).json({ message: "You must be logged in to place an order." });
     }
 
     let razorpayOrder = null;
@@ -202,11 +215,12 @@ export const adminGetOrders = async (req: Request, res: Response) => {
 
 export const adminUpdateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { status, trackingId, courierPartner } = req.body;
+    const { status, trackingId, trackingLink, courierPartner } = req.body;
 
     const updatePayload: any = { status };
-    if (trackingId) updatePayload.trackingId = trackingId;
-    if (courierPartner) updatePayload.courierPartner = courierPartner;
+    if (trackingId !== undefined) updatePayload.trackingId = trackingId;
+    if (trackingLink !== undefined) updatePayload.trackingLink = trackingLink;
+    if (courierPartner !== undefined) updatePayload.courierPartner = courierPartner;
 
     const order = await Order.findByIdAndUpdate(
       req.params.id,
@@ -216,9 +230,9 @@ export const adminUpdateOrderStatus = async (req: Request, res: Response) => {
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // Fire tracking email when marked as Shipped
-    if (status === "Shipped" && order.trackingId) {
-      const customerEmail = (order.customer as any)?.email || order.guestInfo?.email;
+    // Fire tracking email when tracking link is updated
+    if (trackingLink && trackingLink.trim() !== "") {
+      const customerEmail = (order.customer as any)?.email;
       if (customerEmail) {
         sendTrackingUpdateEmail(order, customerEmail).catch(err =>
           console.error("Tracking email error:", err)

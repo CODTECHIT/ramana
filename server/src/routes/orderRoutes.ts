@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { createOrder, getMyOrders, verifyPayment } from "../controllers/orderController.js";
+import { razorpayWebhook } from "../controllers/webhookController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = Router();
+
+router.post("/webhook", razorpayWebhook);
 
 // Guest checkout can post without logging in, but if logged in, it links the user
 router.post("/", (req, res, next) => {

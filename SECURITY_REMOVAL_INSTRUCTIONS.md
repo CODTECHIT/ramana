@@ -2,7 +2,7 @@
 
 Follow these steps locally (PowerShell) to remove the checked-in secrets and build artifacts, then purge history if needed.
 
-1) Remove files from the index (keep local copies):
+1. Remove files from the index (keep local copies):
 
 ```powershell
 git rm --cached .env
@@ -13,7 +13,7 @@ git commit -m "chore: remove sensitive env files and build artifacts from repo"
 git push origin HEAD
 ```
 
-2) (Optional, to purge history) Use BFG Repo-Cleaner or git-filter-repo. Example with BFG:
+2. (Optional, to purge history) Use BFG Repo-Cleaner or git-filter-repo. Example with BFG:
 
 ```powershell
 # Download BFG jar, then:
@@ -32,17 +32,20 @@ git filter-repo --invert-paths --paths .env --paths server/.env --paths .next --
 git push --force
 ```
 
-3) Rotate all secrets immediately (recommended):
+3. Rotate all secrets immediately (recommended):
+
 - Rotate MongoDB user password and update connection URI in your deployment's secret store.
 - Rotate Cloudinary API secret and update config in hosting platform.
 - Rotate SMTP credentials and any payment provider keys (Razorpay).
 - Regenerate JWT secrets used by authentication.
 
-4) Add/update documentation:
+4. Add/update documentation:
+
 - Keep `server/.env.example` and `.env.example` in the repo with placeholders.
 - Ensure `.gitignore` contains `.env` and `server/.env` (already present).
 
-5) Prevent recurrence:
+5. Prevent recurrence:
+
 - Add a pre-commit hook or a CI check that fails when `.env` or other sensitive filenames are staged.
 
 If you want, I can run the git index removal commands for you (apply changes to repo files only), or produce a small pre-commit hook file to add to the repo. Tell me which step to run next.

@@ -19,6 +19,8 @@ interface Product {
   stock: number;
   description: string;
   details: string[];
+  setContents?: string[];
+  sizes?: string[];
   category: Category;
   images: string[];
   tags: string[];
@@ -42,6 +44,8 @@ export default function ProductManager() {
     stock: 0,
     description: "",
     details: "", // will split by newline
+    setContents: "",
+    sizes: "",
     category: "",
     images: [] as string[],
     tags: "", // will split by comma
@@ -73,7 +77,7 @@ export default function ProductManager() {
     setEditingId(null);
     setFormData({
       name: "", slug: "", price: 0, stock: 0, description: "",
-      details: "", category: categories[0]?._id || "", images: [], tags: "", active: true
+      details: "", setContents: "", sizes: "", category: categories[0]?._id || "", images: [], tags: "", active: true
     });
     setShowModal(true);
   };
@@ -87,6 +91,8 @@ export default function ProductManager() {
       stock: p.stock,
       description: p.description,
       details: p.details?.join("\n") || "",
+      setContents: p.setContents?.join("\n") || "",
+      sizes: p.sizes?.join(", ") || "",
       category: p.category?._id || "",
       images: p.images || [],
       tags: p.tags?.join(", ") || "",
@@ -98,6 +104,7 @@ export default function ProductManager() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    const target = e.target;
 
     try {
       setUploading(true);
@@ -130,11 +137,12 @@ export default function ProductManager() {
         alert("Cloudinary upload failed");
       }
     } catch (err: any) {
+      console.error("Product Image Upload Error:", err);
       alert("Error uploading image: " + err.message);
     } finally {
       setUploading(false);
       // Reset input
-      e.target.value = "";
+      if (target) target.value = "";
     }
   };
 
@@ -151,6 +159,8 @@ export default function ProductManager() {
       const payload = {
         ...formData,
         details: formData.details.split("\n").map(s => s.trim()).filter(Boolean),
+        setContents: formData.setContents.split("\n").map(s => s.trim()).filter(Boolean),
+        sizes: formData.sizes.split(",").map(s => s.trim()).filter(Boolean),
         tags: formData.tags.split(",").map(s => s.trim()).filter(Boolean),
       };
 
@@ -345,7 +355,16 @@ export default function ProductManager() {
                   <textarea rows={3} value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} className="w-full p-2 border rounded text-sm outline-none focus:border-[#C9A227]" placeholder="24K Pure Gold&#10;Hallmarked&#10;Includes certificate" />
                 </div>
 
+                <div>
+                  <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Set Contents (One per line, Optional)</label>
+                  <textarea rows={3} value={formData.setContents} onChange={e => setFormData({ ...formData, setContents: e.target.value })} className="w-full p-2 border rounded text-sm outline-none focus:border-[#C9A227]" placeholder="Necklace with extender chain&#10;Matching jhumka earrings&#10;Velvet jewellery box" />
+                </div>
+
                 <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Sizes/Length (Comma separated, Optional)</label>
+                    <input type="text" value={formData.sizes} onChange={e => setFormData({ ...formData, sizes: e.target.value })} className="w-full p-2 border rounded text-sm outline-none focus:border-[#C9A227]" placeholder='16", 18", 20"' />
+                  </div>
                   <div className="flex-1">
                     <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Tags (Comma separated)</label>
                     <input type="text" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })} className="w-full p-2 border rounded text-sm outline-none focus:border-[#C9A227]" placeholder="bestseller, new arrival, wedding" />

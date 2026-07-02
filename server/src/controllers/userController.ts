@@ -13,7 +13,7 @@ import bcrypt from "bcrypt";
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById((req as any).userId).select("-passwordHash -refreshTokenHash -resetPasswordToken -resetPasswordExpires");
+    const user = await User.findById((req as any).user?.id).select("-passwordHash -refreshTokenHash -resetPasswordToken -resetPasswordExpires");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
@@ -25,7 +25,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const { name, phone, dateOfBirth, avatar } = req.body;
     const updated = await User.findByIdAndUpdate(
-      (req as any).userId,
+      (req as any).user?.id,
       { $set: { name, phone, dateOfBirth, avatar } },
       { new: true, runValidators: true }
     ).select("-passwordHash -refreshTokenHash -resetPasswordToken -resetPasswordExpires");
@@ -42,7 +42,7 @@ export const changePassword = async (req: Request, res: Response) => {
     if (!currentPassword || !newPassword || newPassword.length < 8) {
       return res.status(400).json({ message: "Invalid password data. New password must be at least 8 characters." });
     }
-    const user = await User.findById((req as any).userId);
+    const user = await User.findById((req as any).user?.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     const valid = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!valid) return res.status(401).json({ message: "Current password is incorrect" });
@@ -58,7 +58,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
 export const getAddresses = async (req: Request, res: Response) => {
   try {
-    const addresses = await Address.find({ user: (req as any).userId }).sort({ isDefault: -1, createdAt: -1 });
+    const addresses = await Address.find({ user: (req as any).user?.id }).sort({ isDefault: -1, createdAt: -1 });
     res.json(addresses);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -67,7 +67,7 @@ export const getAddresses = async (req: Request, res: Response) => {
 
 export const addAddress = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = (req as any).user?.id;
     const { isDefault, ...rest } = req.body;
     // If setting as default, unset all others first
     if (isDefault) {
@@ -84,7 +84,7 @@ export const addAddress = async (req: Request, res: Response) => {
 
 export const updateAddress = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = (req as any).user?.id;
     const { isDefault, ...rest } = req.body;
     if (isDefault) {
       await Address.updateMany({ user: userId }, { $set: { isDefault: false } });
@@ -103,7 +103,7 @@ export const updateAddress = async (req: Request, res: Response) => {
 
 export const deleteAddress = async (req: Request, res: Response) => {
   try {
-    const address = await Address.findOneAndDelete({ _id: req.params.id, user: (req as any).userId });
+    const address = await Address.findOneAndDelete({ _id: req.params.id, user: (req as any).user?.id });
     if (!address) return res.status(404).json({ message: "Address not found" });
     res.json({ message: "Address deleted" });
   } catch (err) {
@@ -113,7 +113,7 @@ export const deleteAddress = async (req: Request, res: Response) => {
 
 export const setDefaultAddress = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = (req as any).user?.id;
     await Address.updateMany({ user: userId }, { $set: { isDefault: false } });
     const address = await Address.findOneAndUpdate(
       { _id: req.params.id, user: userId },
@@ -131,7 +131,7 @@ export const setDefaultAddress = async (req: Request, res: Response) => {
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = (req as any).user?.id;
     const orders = await Order.find({ customer: userId });
     const totalOrders = orders.length;
     const pendingOrders = orders.filter(o => o.status === "Processing").length;
@@ -147,7 +147,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
 export const getMyReviews = async (req: Request, res: Response) => {
   try {
-    const reviews = await Review.find({ user: (req as any).userId }).sort({ createdAt: -1 });
+    const reviews = await Review.find({ user: (req as any).user?.id }).sort({ createdAt: -1 });
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -157,10 +157,10 @@ export const getMyReviews = async (req: Request, res: Response) => {
 export const createReview = async (req: Request, res: Response) => {
   try {
     const { product, productName, productImage, rating, title, body, images, order } = req.body;
-    const existing = await Review.findOne({ user: (req as any).userId, product });
+    const existing = await Review.findOne({ user: (req as any).user?.id, product });
     if (existing) return res.status(400).json({ message: "You already reviewed this product" });
     const review = await Review.create({
-      user: (req as any).userId,
+      user: (req as any).user?.id,
       product, productName, productImage, rating, title, body, images, order,
       isVerifiedPurchase: !!order,
     });
@@ -174,7 +174,7 @@ export const updateReview = async (req: Request, res: Response) => {
   try {
     const { rating, title, body, images } = req.body;
     const review = await Review.findOneAndUpdate(
-      { _id: req.params.id, user: (req as any).userId },
+      { _id: req.params.id, user: (req as any).user?.id },
       { $set: { rating, title, body, images } },
       { new: true }
     );
@@ -187,7 +187,7 @@ export const updateReview = async (req: Request, res: Response) => {
 
 export const deleteReview = async (req: Request, res: Response) => {
   try {
-    const review = await Review.findOneAndDelete({ _id: req.params.id, user: (req as any).userId });
+    const review = await Review.findOneAndDelete({ _id: req.params.id, user: (req as any).user?.id });
     if (!review) return res.status(404).json({ message: "Review not found" });
     res.json({ message: "Review deleted" });
   } catch (err) {
@@ -199,7 +199,7 @@ export const deleteReview = async (req: Request, res: Response) => {
 
 export const getWishlist = async (req: Request, res: Response) => {
   try {
-    const items = await Wishlist.find({ user: (req as any).userId }).sort({ createdAt: -1 });
+    const items = await Wishlist.find({ user: (req as any).user?.id }).sort({ createdAt: -1 });
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -209,9 +209,9 @@ export const getWishlist = async (req: Request, res: Response) => {
 export const addWishlist = async (req: Request, res: Response) => {
   try {
     const { slug, name, price, originalPrice, img } = req.body;
-    const existing = await Wishlist.findOne({ user: (req as any).userId, slug });
+    const existing = await Wishlist.findOne({ user: (req as any).user?.id, slug });
     if (existing) return res.status(400).json({ message: "Already in wishlist" });
-    const item = await Wishlist.create({ user: (req as any).userId, slug, name, price, originalPrice, img });
+    const item = await Wishlist.create({ user: (req as any).user?.id, slug, name, price, originalPrice, img });
     res.status(201).json(item);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -220,7 +220,7 @@ export const addWishlist = async (req: Request, res: Response) => {
 
 export const removeWishlist = async (req: Request, res: Response) => {
   try {
-    await Wishlist.findOneAndDelete({ user: (req as any).userId, slug: req.params.slug });
+    await Wishlist.findOneAndDelete({ user: (req as any).user?.id, slug: req.params.slug });
     res.json({ message: "Removed from wishlist" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -231,7 +231,7 @@ export const removeWishlist = async (req: Request, res: Response) => {
 
 export const getSavedItems = async (req: Request, res: Response) => {
   try {
-    const items = await SavedItem.find({ user: (req as any).userId }).sort({ createdAt: -1 });
+    const items = await SavedItem.find({ user: (req as any).user?.id }).sort({ createdAt: -1 });
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -241,9 +241,9 @@ export const getSavedItems = async (req: Request, res: Response) => {
 export const addSavedItem = async (req: Request, res: Response) => {
   try {
     const { slug, name, price, originalPrice, img } = req.body;
-    const existing = await SavedItem.findOne({ user: (req as any).userId, slug });
+    const existing = await SavedItem.findOne({ user: (req as any).user?.id, slug });
     if (existing) return res.status(400).json({ message: "Already saved" });
-    const item = await SavedItem.create({ user: (req as any).userId, slug, name, price, originalPrice, img });
+    const item = await SavedItem.create({ user: (req as any).user?.id, slug, name, price, originalPrice, img });
     res.status(201).json(item);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -252,7 +252,7 @@ export const addSavedItem = async (req: Request, res: Response) => {
 
 export const removeSavedItem = async (req: Request, res: Response) => {
   try {
-    await SavedItem.findOneAndDelete({ user: (req as any).userId, slug: req.params.slug });
+    await SavedItem.findOneAndDelete({ user: (req as any).user?.id, slug: req.params.slug });
     res.json({ message: "Removed from saved items" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -263,7 +263,7 @@ export const removeSavedItem = async (req: Request, res: Response) => {
 
 export const getRecentlyViewed = async (req: Request, res: Response) => {
   try {
-    const items = await RecentlyViewed.find({ user: (req as any).userId }).sort({ updatedAt: -1 }).limit(20);
+    const items = await RecentlyViewed.find({ user: (req as any).user?.id }).sort({ updatedAt: -1 }).limit(20);
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -273,12 +273,12 @@ export const getRecentlyViewed = async (req: Request, res: Response) => {
 export const addRecentlyViewed = async (req: Request, res: Response) => {
   try {
     const { slug, name, price, img } = req.body;
-    let item = await RecentlyViewed.findOne({ user: (req as any).userId, slug });
+    let item = await RecentlyViewed.findOne({ user: (req as any).user?.id, slug });
     if (item) {
       item.updatedAt = new Date();
       await item.save();
     } else {
-      item = await RecentlyViewed.create({ user: (req as any).userId, slug, name, price, img });
+      item = await RecentlyViewed.create({ user: (req as any).user?.id, slug, name, price, img });
     }
     res.status(200).json(item);
   } catch (err) {
@@ -288,7 +288,7 @@ export const addRecentlyViewed = async (req: Request, res: Response) => {
 
 export const removeRecentlyViewed = async (req: Request, res: Response) => {
   try {
-    await RecentlyViewed.findOneAndDelete({ user: (req as any).userId, slug: req.params.slug });
+    await RecentlyViewed.findOneAndDelete({ user: (req as any).user?.id, slug: req.params.slug });
     res.json({ message: "Removed" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -297,7 +297,7 @@ export const removeRecentlyViewed = async (req: Request, res: Response) => {
 
 export const clearRecentlyViewed = async (req: Request, res: Response) => {
   try {
-    await RecentlyViewed.deleteMany({ user: (req as any).userId });
+    await RecentlyViewed.deleteMany({ user: (req as any).user?.id });
     res.json({ message: "Cleared all recently viewed" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -308,7 +308,7 @@ export const clearRecentlyViewed = async (req: Request, res: Response) => {
 
 export const getPaymentMethods = async (req: Request, res: Response) => {
   try {
-    const methods = await PaymentMethod.find({ user: (req as any).userId }).sort({ createdAt: -1 });
+    const methods = await PaymentMethod.find({ user: (req as any).user?.id }).sort({ createdAt: -1 });
     res.json(methods);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -319,9 +319,9 @@ export const addPaymentMethod = async (req: Request, res: Response) => {
   try {
     const { type, label, detail, bank, icon, isDefault } = req.body;
     if (isDefault) {
-      await PaymentMethod.updateMany({ user: (req as any).userId }, { $set: { isDefault: false } });
+      await PaymentMethod.updateMany({ user: (req as any).user?.id }, { $set: { isDefault: false } });
     }
-    const method = await PaymentMethod.create({ user: (req as any).userId, type, label, detail, bank, icon, isDefault });
+    const method = await PaymentMethod.create({ user: (req as any).user?.id, type, label, detail, bank, icon, isDefault });
     res.status(201).json(method);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -330,7 +330,7 @@ export const addPaymentMethod = async (req: Request, res: Response) => {
 
 export const removePaymentMethod = async (req: Request, res: Response) => {
   try {
-    await PaymentMethod.findOneAndDelete({ _id: req.params.id, user: (req as any).userId });
+    await PaymentMethod.findOneAndDelete({ _id: req.params.id, user: (req as any).user?.id });
     res.json({ message: "Payment method removed" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -339,9 +339,9 @@ export const removePaymentMethod = async (req: Request, res: Response) => {
 
 export const setDefaultPaymentMethod = async (req: Request, res: Response) => {
   try {
-    await PaymentMethod.updateMany({ user: (req as any).userId }, { $set: { isDefault: false } });
+    await PaymentMethod.updateMany({ user: (req as any).user?.id }, { $set: { isDefault: false } });
     const method = await PaymentMethod.findOneAndUpdate(
-      { _id: req.params.id, user: (req as any).userId },
+      { _id: req.params.id, user: (req as any).user?.id },
       { $set: { isDefault: true } },
       { new: true }
     );

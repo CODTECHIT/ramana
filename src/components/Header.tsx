@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search, User, Heart, ShoppingBag, Menu, X, Trash2, ShoppingCart, ChevronDown } from "lucide-react";
-import { Constants } from "../lib/mock-data";
+import { Constants, fmt, I } from "../lib/mock-data";
 import { useAuth } from "./AuthProvider";
 import { useWishlist } from "./WishlistProvider";
 import { useCart } from "./CartProvider";

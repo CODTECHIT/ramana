@@ -51,6 +51,10 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    if (req.body.storefront && user.role === "admin") {
+      return res.status(403).json({ message: "Admin accounts cannot login here. Please use the admin portal." });
+    }
+
     const accessToken = generateAccessToken(user.id, user.role);
     const refreshToken = generateRefreshToken(user.id, user.role);
 

@@ -131,7 +131,7 @@ export default function OrderDetailPage() {
           <div className="rounded-2xl border p-5" style={{ background: IVORY, borderColor: MIST }}>
             <h2 className="font-semibold mb-5" style={{ color: CHARCOAL, fontFamily: SERIF }}>Order Tracking</h2>
             {order.trackingId && (
-              <div className="flex items-center gap-2 mb-5 p-3 rounded-lg" style={{ background: `${GOLD}10` }}>
+              <div className="flex items-center gap-2 mb-5 p-3 rounded-lg flex-wrap" style={{ background: `${GOLD}10` }}>
                 <span className="text-xs" style={{ color: SMOKE }}>Tracking ID:</span>
                 <span className="text-xs font-bold" style={{ color: GOLD }}>{order.trackingId}</span>
                 {order.courierPartner && (
@@ -139,6 +139,9 @@ export default function OrderDetailPage() {
                     <span className="text-xs" style={{ color: SMOKE }}>· via</span>
                     <span className="text-xs font-medium" style={{ color: CHARCOAL }}>{order.courierPartner}</span>
                   </>
+                )}
+                {order.trackingLink && (
+                  <a href={order.trackingLink.startsWith('http') ? order.trackingLink : `https://${order.trackingLink}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs font-semibold hover:underline" style={{ color: "#2563eb" }}>Track Package ↗</a>
                 )}
               </div>
             )}
@@ -186,11 +189,7 @@ export default function OrderDetailPage() {
                 </button>
               </>
             )}
-            {order.status === "Processing" && (
-              <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-sm font-medium border transition-all hover:opacity-80" style={{ borderColor: "#f87171", color: "#dc2626" }}>
-                Cancel Order
-              </button>
-            )}
+
             <Link href="/account/orders" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-sm font-medium border transition-all hover:opacity-80" style={{ borderColor: MIST, color: SMOKE }}>
               ← All Orders
             </Link>

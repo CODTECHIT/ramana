@@ -30,6 +30,7 @@ export interface IOrder extends Document {
     transactionId: string;
   };
   trackingId?: string;
+  trackingLink?: string;
   courierPartner?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -78,6 +79,7 @@ const OrderSchema: Schema = new Schema(
       transactionId: { type: String },
     },
     trackingId: { type: String },
+    trackingLink: { type: String },
     courierPartner: { type: String },
   },
   {

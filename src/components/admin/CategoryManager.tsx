@@ -37,6 +37,7 @@ export default function CategoryManager() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    const target = e.target;
 
     try {
       setUploading(true);
@@ -65,10 +66,11 @@ export default function CategoryManager() {
         alert("Cloudinary upload failed");
       }
     } catch (err: any) {
+      console.error("Category Image Upload Error:", err);
       alert("Error uploading image: " + err.message);
     } finally {
       setUploading(false);
-      e.target.value = "";
+      if (target) target.value = "";
     }
   };
 

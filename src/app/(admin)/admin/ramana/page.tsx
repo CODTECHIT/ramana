@@ -11,6 +11,8 @@ import BannerManager from "../../../../components/admin/BannerManager";
 import OrderManager from "../../../../components/admin/OrderManager";
 import CustomerManager from "../../../../components/admin/CustomerManager";
 import CollectionManager from "../../../../components/admin/CollectionManager";
+import SettingsManager from "../../../../components/admin/SettingsManager";
+import { Settings } from "lucide-react";
 
 const { GOLD, SANS, SERIF, IVORY } = Constants;
 
@@ -39,6 +41,7 @@ export default function AdminPage() {
     { id: "customers", label: "Customers",  icon: Users            },
     { id: "banners",   label: "Banners",    icon: ImageIcon        },
     { id: "reports",   label: "Reports",    icon: BarChart2        },
+    { id: "settings",  label: "Settings",   icon: Settings         },
   ];
 
   return (
@@ -120,6 +123,8 @@ export default function AdminPage() {
           {section === "customers" && <CustomerManager />}
 
           {section === "reports" && <ReportDashboard />}
+
+          {section === "settings" && <SettingsManager />}
         </div>
       </main>
     </div>
