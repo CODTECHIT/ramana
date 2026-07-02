@@ -41,7 +41,7 @@ app.use("/api/orders/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000"];
+const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000", "https://ramana-ruby.vercel.app", "http://localhost:3000"];
 app.use(cors({ 
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -90,7 +90,11 @@ app.get("/health", (req, res) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "production" || process.env.RUN_LOCAL === "true") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+export default app;

@@ -42,7 +42,7 @@ export default function BannerManager() {
 
     try {
       setUploading(true);
-      const sigRes = await fetch("http://localhost:5000/api/admin/upload/signature", {
+      const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/upload/signature`, {
         credentials: "include"
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
@@ -76,7 +76,7 @@ export default function BannerManager() {
 
   const fetchBanners = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/banners", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/banners`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -90,11 +90,11 @@ export default function BannerManager() {
 
   const fetchAuxData = async () => {
     try {
-      const catRes = await fetch("http://localhost:5000/api/categories");
+      const catRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`);
       const catData = await catRes.json();
       setCategories(catData);
 
-      const prodRes = await fetch("http://localhost:5000/api/products");
+      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`);
       const prodData = await prodRes.json();
       setProducts(prodData.filter((p: any) => p.active));
     } catch (err) {}
@@ -128,8 +128,8 @@ export default function BannerManager() {
     e.preventDefault();
     try {
       const url = editingId
-        ? `http://localhost:5000/api/admin/banners/${editingId}`
-        : `http://localhost:5000/api/admin/banners`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/banners/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/banners`;
 
       const res = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -154,7 +154,7 @@ export default function BannerManager() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this banner?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/banners/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/banners/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

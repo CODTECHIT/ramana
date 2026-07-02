@@ -6,7 +6,7 @@ import { EmptyState, PageHeader, SkeletonCard } from "../../../../components/das
 import { Constants } from "../../../../lib/mock-data";
 
 const { GOLD, CHARCOAL, IVORY, MIST, SMOKE, SANS, SERIF } = Constants;
-const API = "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`;
 
 const EMPTY_FORM = { fullName: "", mobile: "", addressLine1: "", addressLine2: "", city: "", state: "Tamil Nadu", country: "India", pincode: "", landmark: "", isDefault: false };
 

@@ -7,7 +7,7 @@ import { OrderStatusBadge, EmptyState, SkeletonCard, PageHeader } from "../../..
 import { Constants, fmt } from "../../../../lib/mock-data";
 
 const { GOLD, CHARCOAL, IVORY, MIST, SMOKE, SANS, SERIF } = Constants;
-const API = "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`;
 
 const STATUS_FILTER = ["All", "Processing", "Shipped", "Delivered", "Cancelled"];
 

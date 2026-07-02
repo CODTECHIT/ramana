@@ -7,7 +7,7 @@ import { Constants } from "../../../../lib/mock-data";
 
 const { GOLD, CHARCOAL, IVORY, MIST, SMOKE, SANS, SERIF } = Constants;
 
-const API = "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`;
 
 const MOCK_TRANSACTIONS = [
   { id: "t1", desc: "Order #JW-8841 — Complete Bridal Set", amount: -895000, date: "23 Jun 2026", status: "Debited", via: "UPI" },

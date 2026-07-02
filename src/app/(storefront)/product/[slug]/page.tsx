@@ -52,9 +52,9 @@ export default function ProductPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`http://localhost:5000/api/products/${slug}`).then((r) => r.json()),
-      fetch("http://localhost:5000/api/products").then((r) => r.json()),
-      fetch("http://localhost:5000/api/settings").then((r) => r.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/${slug}`).then((r) => r.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`).then((r) => r.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings`).then((r) => r.json()),
     ])
       .then(([p, all, settings]) => {
         setProduct(p);

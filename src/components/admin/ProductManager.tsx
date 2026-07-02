@@ -55,8 +55,8 @@ export default function ProductManager() {
   const fetchData = async () => {
     try {
       const [prodRes, catRes] = await Promise.all([
-        fetch("http://localhost:5000/api/products"),
-        fetch("http://localhost:5000/api/categories")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`)
       ]);
       const pData = await prodRes.json();
       const cData = await catRes.json();
@@ -109,7 +109,7 @@ export default function ProductManager() {
     try {
       setUploading(true);
       // 1. Get signature from backend
-      const sigRes = await fetch("http://localhost:5000/api/admin/upload/signature", {
+      const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/upload/signature`, {
         credentials: "include"
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
@@ -165,8 +165,8 @@ export default function ProductManager() {
       };
 
       const url = editingId 
-        ? `http://localhost:5000/api/admin/products/${editingId}`
-        : `http://localhost:5000/api/admin/products`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products`;
       
       const res = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -191,7 +191,7 @@ export default function ProductManager() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/products/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${id}`, {
         method: "DELETE",
         credentials: "include"
       });

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 export const connectDB = async () => {
   try {
+    if (mongoose.connection.readyState >= 1) return;
+
     const uri = process.env.MONGODB_URI;
     if (!uri) {
       console.warn(

@@ -61,7 +61,7 @@ export default function CartPage() {
         } : undefined,
       };
 
-      let res = await fetch("http://localhost:5000/api/orders", {
+      let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -69,13 +69,13 @@ export default function CartPage() {
       });
 
       if (res.status === 401) {
-        const refreshRes = await fetch("http://localhost:5000/api/auth/refresh", {
+        const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
         
         if (refreshRes.ok) {
-          res = await fetch("http://localhost:5000/api/orders", {
+          res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -107,7 +107,7 @@ export default function CartPage() {
           order_id: data.razorpayOrderId,
           handler: async function (response: any) {
             try {
-              const verifyRes = await fetch("http://localhost:5000/api/orders/verify", {
+              const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

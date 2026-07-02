@@ -18,7 +18,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user/wishlist", { credentials: "include" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/user/wishlist`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
           setWishlist(data);
@@ -49,9 +49,9 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     
     try {
       if (exists) {
-        await fetch(`http://localhost:5000/api/user/wishlist/${product.slug}`, { method: "DELETE", credentials: "include" });
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/user/wishlist/${product.slug}`, { method: "DELETE", credentials: "include" });
       } else {
-        await fetch(`http://localhost:5000/api/user/wishlist`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/user/wishlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

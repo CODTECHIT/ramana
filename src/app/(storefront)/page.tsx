@@ -35,10 +35,10 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:5000/api/categories").then((res) => res.json()),
-      fetch("http://localhost:5000/api/products").then((res) => res.json()),
-      fetch("http://localhost:5000/api/banners").then((res) => res.json()).catch(() => []),
-      fetch("http://localhost:5000/api/collections").then((res) => res.json()).catch(() => []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/banners`).then((res) => res.json()).catch(() => []),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/collections`).then((res) => res.json()).catch(() => []),
     ])
       .then(([cats, prods, bans, cols]) => {
         // Backend may return an error object (e.g. { message: 'Server Error' })

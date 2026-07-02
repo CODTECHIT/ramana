@@ -41,7 +41,7 @@ export default function CategoryManager() {
 
     try {
       setUploading(true);
-      const sigRes = await fetch("http://localhost:5000/api/admin/upload/signature", {
+      const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/upload/signature`, {
         credentials: "include"
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
@@ -76,7 +76,7 @@ export default function CategoryManager() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categories");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`);
       const data = await res.json();
       setCategories(data);
     } catch (err) {
@@ -106,8 +106,8 @@ export default function CategoryManager() {
     e.preventDefault();
     try {
       const url = editingId 
-        ? `http://localhost:5000/api/admin/categories/${editingId}`
-        : `http://localhost:5000/api/admin/categories`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/categories/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/categories`;
       
       const res = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -132,7 +132,7 @@ export default function CategoryManager() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/categories/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/categories/${id}`, {
         method: "DELETE",
         credentials: "include"
       });

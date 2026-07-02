@@ -44,7 +44,7 @@ export default function CollectionManager() {
 
     try {
       setUploading(true);
-      const sigRes = await fetch("http://localhost:5000/api/admin/upload/signature", {
+      const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/upload/signature`, {
         credentials: "include"
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
@@ -78,7 +78,7 @@ export default function CollectionManager() {
 
   const fetchCollections = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/collections", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/collections`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -92,11 +92,11 @@ export default function CollectionManager() {
 
   const fetchAuxData = async () => {
     try {
-      const catRes = await fetch("http://localhost:5000/api/categories");
+      const catRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`);
       const catData = await catRes.json();
       setCategories(catData);
 
-      const prodRes = await fetch("http://localhost:5000/api/products");
+      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`);
       const prodData = await prodRes.json();
       setProducts(prodData.filter((p: any) => p.active));
     } catch (err) {}
@@ -131,8 +131,8 @@ export default function CollectionManager() {
     e.preventDefault();
     try {
       const url = editingId
-        ? `http://localhost:5000/api/admin/collections/${editingId}`
-        : `http://localhost:5000/api/admin/collections`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/collections/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/collections`;
 
       const res = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -157,7 +157,7 @@ export default function CollectionManager() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this collection?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/collections/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/collections/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

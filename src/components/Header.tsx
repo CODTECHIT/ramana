@@ -21,7 +21,7 @@ export function Header({ cartCount }: { cartCount: number }) {
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/categories")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

@@ -21,7 +21,7 @@ export default function AdminPage() {
   const [adminName, setAdminName] = useState("Admin");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/auth/me", { credentials: "include" })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/me`, { credentials: "include" })
       .then((res) => {
         if (res.ok) return res.json();
         throw new Error();

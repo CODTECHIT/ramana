@@ -11,7 +11,7 @@ export function Footer() {
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/settings")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings`)
       .then(res => res.json())
       .then(data => {
         if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);

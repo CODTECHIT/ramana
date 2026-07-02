@@ -38,7 +38,7 @@ export default function CategoryPage() {
   };
 
   useEffect(() => {
-    let url = "http://localhost:5000/api/products";
+    let url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`;
     const queries = [];
     if (categorySlug && categorySlug !== "all") {
       queries.push(`category=${categorySlug}`);

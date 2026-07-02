@@ -6,7 +6,7 @@ import { EmptyState, PageHeader, SkeletonCard } from "../../../../components/das
 import { Constants, I } from "../../../../lib/mock-data";
 
 const { GOLD, CHARCOAL, IVORY, MIST, SMOKE, SANS, SERIF } = Constants;
-const API = "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`;
 
 
 function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {

@@ -35,7 +35,7 @@ export default function ReportDashboard() {
 
   const fetchReportData = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/reports", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/reports`, {
         credentials: "include",
       });
       if (!res.ok) {

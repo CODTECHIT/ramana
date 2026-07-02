@@ -13,7 +13,7 @@ export default function SettingsManager() {
   const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/settings")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings`)
       .then(res => res.json())
       .then(data => {
         setWhatsappNumber(data.whatsappNumber || "");
@@ -30,7 +30,7 @@ export default function SettingsManager() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await fetch("http://localhost:5000/api/settings", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ whatsappNumber }),

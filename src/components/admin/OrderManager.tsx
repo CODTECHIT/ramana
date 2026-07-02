@@ -55,7 +55,7 @@ export default function OrderManager() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/orders", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -83,7 +83,7 @@ export default function OrderManager() {
 
   const submitStatusUpdate = async (id: string, status: string, trackingId: string, courierPartner: string, trackingLink: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/orders/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -22,7 +22,7 @@ export default function CustomerManager() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/customers", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/customers`, {
         credentials: "include",
       });
       const data = await res.json();
