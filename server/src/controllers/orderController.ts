@@ -63,6 +63,9 @@ export const createOrder = async (req: Request, res: Response) => {
 
     for (const item of validatedItems) {
       const idOrSlug = item.productId || item.id;
+      if (!idOrSlug) {
+        return res.status(400).json({ message: `Missing product ID for item ${item.name || 'Unknown'}` });
+      }
       const product = productMap.get(idOrSlug.toString());
 
       if (!product) {
