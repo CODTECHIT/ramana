@@ -13,6 +13,7 @@ export interface IProduct extends Document {
   setContents: string[];
   sizes?: string[];
   images: string[];
+  colors?: { name: string; images: string[] }[];
   active: boolean;
   tag?: string; // e.g. "Bestseller", "New"
   createdAt: Date;
@@ -33,6 +34,12 @@ const ProductSchema: Schema = new Schema(
     setContents: [{ type: String }],
     sizes: [{ type: String }],
     images: [{ type: String }], // Cloudinary URLs
+    colors: [
+      {
+        name: { type: String, required: true },
+        images: [{ type: String }],
+      },
+    ],
     active: { type: Boolean, default: true },
     tag: { type: String },
   },

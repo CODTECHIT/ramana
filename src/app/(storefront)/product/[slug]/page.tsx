@@ -38,6 +38,7 @@ export default function ProductPage() {
   const { toggleWishlist, inWishlist } = useWishlist();
 
   const [activeImg, setActiveImg] = useState(0);
+  const [activeColor, setActiveColor] = useState("");
   const [qty, setQty] = useState(1);
   const [size, setSize] = useState("");
   const [tab, setTab] = useState("details");
@@ -73,13 +74,26 @@ export default function ProductPage() {
   if (!product)
     return <div className="p-20 text-center">Product not found</div>;
 
-  const imgs = product.images?.length ? product.images : [I.display];
   const sizes = product.sizes?.length ? product.sizes : [];
+  const colors = product.colors?.length ? product.colors : [];
+
+  const currentColor = colors.find((c: any) => c.name === activeColor);
+  const imgs = (currentColor?.images?.length) ? currentColor.images : (product.images?.length ? product.images : [I.display]);
 
   // Update default size if available and not yet set
   if (sizes.length > 0 && size === "" && !loading) {
     setSize(sizes[0]);
   }
+  
+  // Update default color if available and not yet set
+  if (colors.length > 0 && activeColor === "" && !loading) {
+    setActiveColor(colors[0].name);
+  }
+
+  // Reset active image when color changes
+  useEffect(() => {
+    setActiveImg(0);
+  }, [activeColor]);
 
   const TABS = [
     {
@@ -253,6 +267,35 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Colors */}
+            {colors.length > 0 && (
+              <div className="mb-6">
+                <p
+                  className="text-xs tracking-wider uppercase mb-3"
+                  style={{ color: CHARCOAL, fontFamily: SANS }}
+                >
+                  Color: <strong>{activeColor}</strong>
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {colors.map((c: any) => (
+                    <button
+                      key={c.name}
+                      onClick={() => setActiveColor(c.name)}
+                      className="px-3 py-1.5 text-xs transition-all"
+                      style={{
+                        border: `1px solid ${activeColor === c.name ? GOLD : "rgba(36,31,26,0.2)"}`,
+                        background: activeColor === c.name ? GOLD : "transparent",
+                        color: activeColor === c.name ? IVORY : CHARCOAL,
+                        fontFamily: SANS,
+                      }}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Set contents accordion */}
             {setContents.length > 0 && (
               <div
@@ -329,7 +372,7 @@ export default function ProductPage() {
                 </button>
               </div>
               <div className="flex gap-2">
-                <GoldBtn onClick={() => addToCart(product)}>Add to Cart</GoldBtn>
+                <GoldBtn onClick={() => addToCart({ ...product, selectedColor: activeColor })}>Add to Cart</GoldBtn>
                 <button
                   className="px-8 py-3 text-xs tracking-[0.18em] uppercase font-medium transition-all duration-300"
                   style={{
@@ -339,7 +382,7 @@ export default function ProductPage() {
                     border: `1px solid ${CHARCOAL}`,
                   }}
                   onClick={() => {
-                    addToCart(product);
+                    addToCart({ ...product, selectedColor: activeColor });
                     router.push("/cart");
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "#333")}
@@ -455,7 +498,7 @@ export default function ProductPage() {
         <button
           className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
           style={{ background: GOLD, color: IVORY, fontFamily: SANS }}
-          onClick={() => addToCart(product)}
+          onClick={() => addToCart({ ...product, selectedColor: activeColor })}
         >
           Add to Cart
         </button>
@@ -463,7 +506,7 @@ export default function ProductPage() {
           className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
           style={{ background: CHARCOAL, color: IVORY, fontFamily: SANS }}
           onClick={() => {
-            addToCart(product);
+            addToCart({ ...product, selectedColor: activeColor });
             router.push("/cart");
           }}
         >

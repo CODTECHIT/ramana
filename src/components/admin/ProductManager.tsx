@@ -23,6 +23,7 @@ interface Product {
   sizes?: string[];
   category: Category;
   images: string[];
+  colors?: { name: string; images: string[] }[];
   tags: string[];
   active: boolean;
 }
@@ -48,6 +49,7 @@ export default function ProductManager() {
     sizes: "",
     category: "",
     images: [] as string[],
+    colors: [] as { name: string; images: string[] }[],
     tags: "", // will split by comma
     active: true,
   });
@@ -77,7 +79,7 @@ export default function ProductManager() {
     setEditingId(null);
     setFormData({
       name: "", slug: "", price: 0, stock: 0, description: "",
-      details: "", setContents: "", sizes: "", category: categories[0]?._id || "", images: [], tags: "", active: true
+      details: "", setContents: "", sizes: "", category: categories[0]?._id || "", images: [], colors: [], tags: "", active: true
     });
     setShowModal(true);
   };
@@ -95,13 +97,14 @@ export default function ProductManager() {
       sizes: p.sizes?.join(", ") || "",
       category: p.category?._id || "",
       images: p.images || [],
+      colors: p.colors || [],
       tags: p.tags?.join(", ") || "",
       active: p.active,
     });
     setShowModal(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, colorIndex: number = -1) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     const target = e.target;
@@ -132,7 +135,15 @@ export default function ProductManager() {
 
       const uploadedData = await uploadRes.json();
       if (uploadedData.secure_url) {
-        setFormData(prev => ({ ...prev, images: [...prev.images, uploadedData.secure_url] }));
+        if (colorIndex >= 0) {
+          setFormData(prev => {
+            const newColors = [...prev.colors];
+            newColors[colorIndex].images.push(uploadedData.secure_url);
+            return { ...prev, colors: newColors };
+          });
+        } else {
+          setFormData(prev => ({ ...prev, images: [...prev.images, uploadedData.secure_url] }));
+        }
       } else {
         alert("Cloudinary upload failed");
       }
@@ -146,11 +157,27 @@ export default function ProductManager() {
     }
   };
 
-  const removeImage = (idx: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== idx)
-    }));
+  const removeImage = (idx: number, colorIndex: number = -1) => {
+    if (colorIndex >= 0) {
+      setFormData(prev => {
+        const newColors = [...prev.colors];
+        newColors[colorIndex].images = newColors[colorIndex].images.filter((_, i) => i !== idx);
+        return { ...prev, colors: newColors };
+      });
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== idx)
+      }));
+    }
+  };
+
+  const addColor = () => {
+    setFormData(prev => ({ ...prev, colors: [...prev.colors, { name: "", images: [] }] }));
+  };
+
+  const removeColor = (idx: number) => {
+    setFormData(prev => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -321,7 +348,7 @@ export default function ProductManager() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Images (Cloudinary)</label>
+                  <label className="block text-xs uppercase tracking-wider mb-1 text-gray-600">Images (Cloudinary) - Default</label>
                   <div className="flex gap-2 flex-wrap mb-2">
                     {formData.images.map((img, i) => (
                       <div key={i} className="relative w-16 h-16 border rounded overflow-hidden">
@@ -335,7 +362,7 @@ export default function ProductManager() {
                     <input 
                       type="file" 
                       accept="image/*" 
-                      onChange={handleImageUpload}
+                      onChange={(e) => handleImageUpload(e)}
                       disabled={uploading}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
                     />
@@ -343,6 +370,59 @@ export default function ProductManager() {
                       <UploadCloud size={16} /> {uploading ? "Uploading..." : "Add Image"}
                     </div>
                   </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-xs uppercase tracking-wider text-gray-600">Color Variants</label>
+                    <button type="button" onClick={addColor} className="text-xs text-blue-600 font-medium">+ Add Color</button>
+                  </div>
+                  {formData.colors.map((color, colorIdx) => (
+                    <div key={colorIdx} className="p-3 border rounded mb-3 bg-gray-50/50">
+                      <div className="flex items-center gap-3 mb-3">
+                        <input
+                          type="text"
+                          placeholder="Color Name (e.g. Rose Gold)"
+                          value={color.name}
+                          onChange={e => {
+                            const newColors = [...formData.colors];
+                            newColors[colorIdx].name = e.target.value;
+                            setFormData(prev => ({ ...prev, colors: newColors }));
+                          }}
+                          className="flex-1 p-2 border rounded text-sm outline-none focus:border-[#C9A227]"
+                        />
+                        <button type="button" onClick={() => removeColor(colorIdx)} className="text-red-500 hover:text-red-700">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      <div className="flex gap-2 flex-wrap mb-2">
+                        {color.images.map((img, i) => (
+                          <div key={i} className="relative w-16 h-16 border rounded overflow-hidden">
+                            <img src={img} alt="Color variant upload" className="w-full h-full object-cover" />
+                            <button type="button" onClick={() => removeImage(i, colorIdx)} className="absolute top-0.5 right-0.5 text-red-500 bg-white rounded-full"><XCircle size={14} /></button>
+                          </div>
+                        ))}
+                      </div>
+                      {color.images.length < 10 && (
+                        <div className="relative inline-block">
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => handleImageUpload(e, colorIdx)}
+                            disabled={uploading}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
+                          />
+                          <div className="flex items-center gap-2 px-3 py-1.5 border rounded bg-white text-sm text-gray-600">
+                            <UploadCloud size={16} /> {uploading ? "Uploading..." : `Add Image (${color.images.length}/10)`}
+                          </div>
+                        </div>
+                      )}
+                      {color.images.length >= 10 && (
+                        <div className="text-xs text-amber-600 mt-1">Maximum 10 images reached for this color.</div>
+                      )}
+                    </div>
+                  ))}
+                  {formData.colors.length === 0 && <p className="text-xs text-gray-400">No color variants added.</p>}
                 </div>
 
                 <div>

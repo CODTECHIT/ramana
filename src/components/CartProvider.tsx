@@ -44,21 +44,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: any) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.id === product.slug);
+      const cartItemId = product.selectedColor ? `${product.slug}-${product.selectedColor}` : product.slug;
+      const existing = prev.find((i) => i.id === cartItemId);
       if (existing)
         return prev.map((i) =>
-          i.id === product.slug ? { ...i, qty: i.qty + 1 } : i,
+          i.id === cartItemId ? { ...i, qty: i.qty + 1 } : i,
         );
+
+      let img = product.images?.[0] || product.img || "";
+      if (product.selectedColor && product.colors) {
+        const colorData = product.colors.find((c: any) => c.name === product.selectedColor);
+        if (colorData && colorData.images?.length > 0) {
+          img = colorData.images[0];
+        }
+      }
+
+      const variantStr = [
+        product.selectedColor ? `Color: ${product.selectedColor}` : "Premium Gold Finish",
+        `18"` // Assuming 18" as default for now as it was before
+      ].join(" · ");
+
       return [
         ...prev,
         {
-          id: product.slug, // using slug as id
+          id: cartItemId, 
           productId: product._id,
           name: product.name,
           price: product.price,
           qty: 1,
-          img: product.images?.[0] || product.img || "",
-          variant: `Premium Gold Finish · 18"`,
+          img: img,
+          variant: variantStr,
         },
       ];
     });
