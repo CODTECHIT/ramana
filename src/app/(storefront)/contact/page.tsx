@@ -14,12 +14,12 @@ export default function ContactPage() {
   };
 
   return (
-    <main style={{ background: IVORY, minHeight: "100vh" }} className="py-16">
+    <main style={{ background: IVORY, minHeight: "100vh" }} className="py-8 md:py-16 px-4 md:px-0">
       <div className="max-w-4xl mx-auto px-6" style={{ fontFamily: SANS }}>
         <h1 className="text-4xl font-normal mb-2 text-center" style={{ fontFamily: SERIF, color: CHARCOAL }}>
           Contact Us
         </h1>
-        <p className="text-xs uppercase tracking-widest text-center mb-12" style={{ color: GOLD }}>
+        <p className="text-xs uppercase tracking-widest text-center mb-6 md:mb-12" style={{ color: GOLD }}>
           Get In Touch With Our Support Team
         </p>
 

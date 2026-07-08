@@ -100,10 +100,10 @@ export default function CategoryPage() {
 
   return (
     <main style={{ background: IVORY, minHeight: "100vh" }}>
-      <div className="max-w-screen-xl mx-auto px-6 py-10">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {/* Breadcrumb */}
         <nav
-          className="flex items-center gap-2 text-xs tracking-wider uppercase mb-10"
+          className="flex items-center gap-2 text-xs tracking-wider uppercase mb-6 md:mb-10"
           style={{ color: SMOKE, fontFamily: SANS }}
         >
           <Link href="/" style={{ color: GOLD }}>Home</Link>
@@ -111,7 +111,7 @@ export default function CategoryPage() {
           <span style={{ color: CHARCOAL }}>Collections</span>
         </nav>
 
-        <div className="flex gap-10">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-10">
           {/* Sidebar */}
           <aside className="hidden md:block w-56 flex-shrink-0">
             <h3 className="text-base mb-6" style={{ fontFamily: SERIF, color: CHARCOAL }}>Refine</h3>
@@ -195,7 +195,7 @@ export default function CategoryPage() {
                 />
               ))}
               {paginatedProducts.length === 0 && (
-                <div className="col-span-full py-20 text-center text-sm text-gray-500" style={{ fontFamily: SANS }}>
+                <div className="col-span-full py-10 md:py-20 text-center text-sm text-gray-500" style={{ fontFamily: SANS }}>
                   No products match the selected criteria.
                 </div>
               )}

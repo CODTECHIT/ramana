@@ -36,7 +36,7 @@ export default function HomePage() {
   useEffect(() => {
     Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/categories`).then((res) => res.json()),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?active=true&limit=4`).then((res) => res.json()),
       fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/banners`).then((res) => res.json()).catch(() => []),
       fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/collections`).then((res) => res.json()).catch(() => []),
     ])
@@ -51,8 +51,13 @@ export default function HomePage() {
           console.error("Unexpected categories response:", cats);
           setCategories([]);
         }
-        // Get 4 random products or just the first 4 active ones for bestsellers
-        setProducts(prods.filter((p: any) => p.active).slice(0, 4));
+        
+        if (Array.isArray(prods)) {
+          setProducts(prods);
+        } else {
+          setProducts([]);
+        }
+        
         if (Array.isArray(bans)) {
           setBanners(bans);
         }
@@ -115,7 +120,7 @@ export default function HomePage() {
               "linear-gradient(115deg, rgba(36,31,26,0.85) 0%, rgba(36,31,26,0.3) 55%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:justify-center md:pb-0 px-8 md:px-20 max-w-3xl">
+        <div className="relative z-10 h-full flex flex-col justify-end pb-10 md:justify-center md:pb-0 px-6 md:px-20 max-w-3xl">
           <p
             className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5"
             style={{
@@ -194,8 +199,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Shop by Category ──────────────────────────────────────────────── */}
-      <section className="py-10 max-w-screen-xl mx-auto px-6">
-        <div className="text-center mb-14">
+      <section className="py-8 md:py-12 max-w-screen-xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-14">
           <SectionEyebrow>Our Categories</SectionEyebrow>
           <SectionHeading center>Shop by Occasion</SectionHeading>
         </div>
@@ -267,8 +272,8 @@ export default function HomePage() {
       </div>
 
       {/* ── Collections editorial ─────────────────────────────────────────── */}
-      <section className="py-10 max-w-screen-xl mx-auto px-6">
-        <div className="text-center mb-14">
+      <section className="py-8 md:py-12 max-w-screen-xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-14">
           <SectionEyebrow>Curated Edits</SectionEyebrow>
           <SectionHeading center>Collections</SectionHeading>
         </div>
@@ -327,8 +332,8 @@ export default function HomePage() {
       </div>
 
       {/* ── Bestsellers ───────────────────────────────────────────────────── */}
-      <section className="py-10 max-w-screen-xl mx-auto px-6">
-        <div className="text-center mb-14">
+      <section className="py-8 md:py-12 max-w-screen-xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-14">
           <SectionEyebrow>Most Loved</SectionEyebrow>
           <SectionHeading center>Bestsellers</SectionHeading>
         </div>
@@ -352,8 +357,8 @@ export default function HomePage() {
           borderBottom: `1px solid rgba(201,162,39,0.12)`,
         }}
       >
-        <div className="max-w-screen-xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="max-w-screen-xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {TRUST.map(({ icon: Icon, label }) => (
               <div
                 key={label}

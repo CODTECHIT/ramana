@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Check,
   ChevronDown,
+  Share2,
 } from "lucide-react";
 import {
   GoldBtn,
@@ -44,6 +45,12 @@ export default function ProductPage() {
   const [tab, setTab] = useState("details");
   const [setOpen, setSetOpen] = useState(true);
   const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0, active: false });
+
+  // Reset active image when color changes
+  useEffect(() => {
+    setActiveImg(0);
+  }, [activeColor]);
 
   const handleWhatsApp = () => {
     if (!product || !whatsappNumber) return;
@@ -51,17 +58,45 @@ export default function ProductPage() {
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: product.name,
+          text: `Check out ${product.name} at Ramana Jewells!`,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.log("Error sharing", err);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y, active: true });
+  };
+
   useEffect(() => {
     Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/${slug}`).then((r) => r.json()),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products`).then((r) => r.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?active=true&limit=5`).then((r) => r.json()),
       fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings`).then((r) => r.json()),
     ])
       .then(([p, all, settings]) => {
         setProduct(p);
-        setRelated(
-          all.filter((x: any) => x.active && x._id !== p._id).slice(0, 4),
-        );
+        if (p?.sizes && p.sizes.length > 0) setSize(p.sizes[0]);
+        if (p?.colors && p.colors.length > 0) setActiveColor(p.colors[0].name);
+        if (Array.isArray(all)) {
+          setRelated(
+            all.filter((x: any) => x._id !== p._id).slice(0, 4),
+          );
+        }
         if (settings && settings.whatsappNumber) {
           setWhatsappNumber(settings.whatsappNumber);
         }
@@ -80,27 +115,20 @@ export default function ProductPage() {
   const currentColor = colors.find((c: any) => c.name === activeColor);
   const imgs = (currentColor?.images?.length) ? currentColor.images : (product.images?.length ? product.images : [I.display]);
 
-  // Update default size if available and not yet set
-  if (sizes.length > 0 && size === "" && !loading) {
-    setSize(sizes[0]);
-  }
-  
-  // Update default color if available and not yet set
-  if (colors.length > 0 && activeColor === "" && !loading) {
-    setActiveColor(colors[0].name);
-  }
-
-  // Reset active image when color changes
-  useEffect(() => {
-    setActiveImg(0);
-  }, [activeColor]);
 
   const TABS = [
     {
       id: "details",
       label: "Product Details",
-      content:
-        product.details || "Premium gold finish. Intricately hand-crafted set with traditional kemp ruby work and delicate pearl beads. Perfect for weddings, festivals, and special occasions.",
+      content: product.details && product.details.length > 0 ? (
+        <ul className="list-disc pl-5 space-y-2">
+          {product.details.map((detail: string, idx: number) => (
+            <li key={idx}>{detail}</li>
+          ))}
+        </ul>
+      ) : (
+        "Premium gold finish. Intricately hand-crafted set with traditional kemp ruby work and delicate pearl beads. Perfect for weddings, festivals, and special occasions."
+      ),
     },
     {
       id: "care",
@@ -140,21 +168,28 @@ export default function ProductPage() {
           <span style={{ color: CHARCOAL }}>{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 mb-8 md:mb-12">
           {/* Image gallery */}
           <div className="md:col-span-5">
             <div
-              className="relative overflow-hidden mb-3"
+              className="relative overflow-hidden mb-3 group cursor-crosshair"
               style={{ aspectRatio: "3/4", background: MIST }}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={() => setZoomPos((prev) => ({ ...prev, active: false }))}
             >
               <img
                 src={imgs[activeImg]}
                 alt={product.name}
-                className="w-full h-full object-cover transition-opacity duration-300"
+                className="w-full h-full object-cover pointer-events-none"
+                style={{
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  transform: zoomPos.active ? "scale(2.5)" : "scale(1)",
+                  transition: "transform 0.1s ease-out",
+                }}
               />
               {product.tags && product.tags.length > 0 && (
                 <span
-                  className="absolute top-4 left-4 text-xs tracking-widest uppercase px-2 py-1"
+                  className="absolute top-4 left-4 text-xs tracking-widest uppercase px-2 py-1 z-10"
                   style={{ background: GOLD, color: IVORY, fontFamily: SANS }}
                 >
                   {product.tags[0]}
@@ -346,11 +381,22 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Stock Warning */}
+            {product.stock === 0 ? (
+              <p className="text-red-600 text-sm font-medium mb-4" style={{ fontFamily: SANS }}>
+                Currently Out of Stock. Please check back later.
+              </p>
+            ) : product.stock <= 5 ? (
+              <p className="text-[#C9A227] text-sm font-medium mb-4" style={{ fontFamily: SANS }}>
+                Fast Selling — Only {product.stock} unit{product.stock === 1 ? "" : "s"} left!
+              </p>
+            ) : null}
+
             {/* Qty + CTA */}
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <div
                 className="flex items-center"
-                style={{ border: `1px solid rgba(201,162,39,0.3)` }}
+                style={{ border: `1px solid rgba(201,162,39,0.3)`, opacity: product.stock === 0 ? 0.5 : 1, pointerEvents: product.stock === 0 ? "none" : "auto" }}
               >
                 <button
                   className="px-3 py-2.5 hover:opacity-60 transition-opacity"
@@ -372,9 +418,15 @@ export default function ProductPage() {
                 </button>
               </div>
               <div className="flex gap-2">
-                <GoldBtn onClick={() => addToCart({ ...product, selectedColor: activeColor })}>Add to Cart</GoldBtn>
+                <GoldBtn 
+                  disabled={product.stock === 0}
+                  onClick={() => addToCart({ ...product, selectedColor: activeColor })}
+                >
+                  {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                </GoldBtn>
                 <button
-                  className="px-8 py-3 text-xs tracking-[0.18em] uppercase font-medium transition-all duration-300"
+                  disabled={product.stock === 0}
+                  className={`px-8 py-3 text-xs tracking-[0.18em] uppercase font-medium transition-all duration-300 ${product.stock === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
                   style={{
                     fontFamily: SANS,
                     background: CHARCOAL,
@@ -382,11 +434,12 @@ export default function ProductPage() {
                     border: `1px solid ${CHARCOAL}`,
                   }}
                   onClick={() => {
+                    if (product.stock === 0) return;
                     addToCart({ ...product, selectedColor: activeColor });
                     router.push("/cart");
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#333")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = CHARCOAL)}
+                  onMouseEnter={(e) => { if (product.stock > 0) e.currentTarget.style.background = "#333"; }}
+                  onMouseLeave={(e) => { if (product.stock > 0) e.currentTarget.style.background = CHARCOAL; }}
                 >
                   Buy Now
                 </button>
@@ -395,12 +448,21 @@ export default function ProductPage() {
                 onClick={() => toggleWishlist(product)}
                 className="p-2.5 transition-colors"
                 style={{ border: `1px solid rgba(201,162,39,0.3)` }}
+                title="Add to Wishlist"
               >
                 <Heart
                   size={17}
                   fill={inWishlist(product.slug) ? MAROON : "none"}
                   stroke={inWishlist(product.slug) ? MAROON : CHARCOAL}
                 />
+              </button>
+              <button
+                onClick={handleShare}
+                className="p-2.5 transition-colors"
+                style={{ border: `1px solid rgba(201,162,39,0.3)` }}
+                title="Share"
+              >
+                <Share2 size={17} stroke={CHARCOAL} />
               </button>
             </div>
 
@@ -438,7 +500,7 @@ export default function ProductPage() {
         </div>
 
         {/* Tabs */}
-        <div className="mb-20 px-6 md:px-0">
+        <div className="mb-10 md:mb-20 px-6 md:px-0">
           <div
             className="flex overflow-x-auto whitespace-nowrap"
             style={{
@@ -475,7 +537,7 @@ export default function ProductPage() {
 
         {/* Related products */}
         <section className="px-6 md:px-0">
-          <div className="mb-10">
+          <div className="mb-6 md:mb-10">
             <SectionEyebrow>You May Also Like</SectionEyebrow>
             <SectionHeading>Related Pieces</SectionHeading>
           </div>
@@ -496,16 +558,19 @@ export default function ProductPage() {
         }}
       >
         <button
-          className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
+          disabled={product.stock === 0}
+          className={`flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center ${product.stock === 0 ? "opacity-50" : ""}`}
           style={{ background: GOLD, color: IVORY, fontFamily: SANS }}
           onClick={() => addToCart({ ...product, selectedColor: activeColor })}
         >
-          Add to Cart
+          {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
         </button>
         <button
-          className="flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center"
+          disabled={product.stock === 0}
+          className={`flex-1 py-3 text-[10px] tracking-widest uppercase font-medium transition-opacity hover:opacity-90 text-center ${product.stock === 0 ? "opacity-50" : ""}`}
           style={{ background: CHARCOAL, color: IVORY, fontFamily: SANS }}
           onClick={() => {
+            if (product.stock === 0) return;
             addToCart({ ...product, selectedColor: activeColor });
             router.push("/cart");
           }}

@@ -9,14 +9,20 @@ import { Category } from "../models/Category.js";
 export const getProducts = async (req: Request, res: Response) => {
   try {
     let filter: any = {};
+    
     if (req.query.category) {
       const categorySlug = req.query.category as string;
-      const category = await Category.findOne({ slug: categorySlug });
+      const category = await Category.findOne({ slug: categorySlug }).lean() as any;
       if (!category) {
         return res.status(200).json([]);
       }
       filter.category = category._id;
     }
+    
+    if (req.query.active) {
+      filter.active = req.query.active === 'true';
+    }
+    
     if (req.query.search) {
       const keyword = req.query.search as string;
       filter.$or = [
@@ -24,7 +30,21 @@ export const getProducts = async (req: Request, res: Response) => {
         { description: { $regex: keyword, $options: "i" } }
       ];
     }
-    const products = await Product.find(filter).populate("category", "name slug");
+    
+    let query = Product.find(filter).populate("category", "name slug").sort({ createdAt: -1 }).lean();
+    
+    if (req.query.limit) {
+      const limit = parseInt(req.query.limit as string);
+      if (!isNaN(limit) && limit > 0) {
+        query = query.limit(limit);
+      }
+    }
+    
+    if (req.query.select) {
+      query = query.select(req.query.select as string);
+    }
+    
+    const products = await query;
     res.status(200).json(products);
   } catch (error) {
     console.error("Get Products Error:", error);
@@ -37,7 +57,7 @@ export const getProducts = async (req: Request, res: Response) => {
 // @access  Public
 export const getProductBySlug = async (req: Request, res: Response) => {
   try {
-    const product = await Product.findOne({ slug: req.params.slug }).populate("category", "name slug");
+    const product = await Product.findOne({ slug: req.params.slug }).populate("category", "name slug").lean();
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -53,7 +73,7 @@ export const getProductBySlug = async (req: Request, res: Response) => {
 // @access  Admin
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, slug, price, stock, description, details, category, images, tags, setContents, sizes, active } = req.body;
+    const { name, slug, price, stock, description, details, category, images, colors, tags, setContents, sizes, active } = req.body;
 
     const existingProduct = await Product.findOne({ slug });
     if (existingProduct) {
@@ -61,7 +81,7 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     const product = await Product.create({
-      name, slug, price, stock, description, details, category, images, tags, setContents, sizes, active
+      name, slug, price, stock, description, details, category, images, colors, tags, setContents, sizes, active
     });
 
     res.status(201).json(product);

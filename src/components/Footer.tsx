@@ -52,8 +52,8 @@ export function Footer() {
 
   return (
     <footer style={{ background: CHARCOAL }}>
-      <div className="max-w-screen-xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-10 gap-x-6 mb-12">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-6 py-10 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-8 md:gap-y-10 gap-x-6 mb-8 md:mb-12">
           <div className="col-span-2 md:col-span-2">
             <h2 className="text-2xl font-normal mb-1" style={{ fontFamily: SERIF, color: IVORY }}>
               Ramana Jewells
@@ -135,7 +135,7 @@ export function Footer() {
         </div>
 
         <div
-          className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
+          className="pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 text-center md:text-left"
           style={{ borderTop: `1px solid rgba(201,162,39,0.12)` }}
         >
           <p className="text-xs" style={{ color: "rgba(250,247,242,0.35)", fontFamily: SANS }}>

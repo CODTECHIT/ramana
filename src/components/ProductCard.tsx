@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
-import { Constants, fmt } from "../lib/mock-data";
+import { Constants, fmt, I } from "../lib/mock-data";
 import { useWishlist } from "./WishlistProvider";
 import { useRouter } from "next/navigation";
 
@@ -22,7 +22,7 @@ export function ProductCard({
   const onNavigate = () => router.push(`/product/${product.slug}`);
 
   const img1 = product.images?.[0] || product.img || "";
-  const img2 = product.images?.[1] || product.img2 || img1;
+  const img2 = product.images?.[1] || product.img2 || "";
   const tag = product.tags?.[0] || product.tag || "";
   const categoryName = typeof product.category === 'object' ? product.category.name : product.category;
 
@@ -36,21 +36,41 @@ export function ProductCard({
         onClick={onNavigate}
       >
         {/* Primary image */}
-        <img
-          src={img1}
-          alt={product.name}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: hov ? 0 : 1 }}
-        />
+        {img1 && (
+          <img
+            src={img1}
+            alt={product.name}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+            style={{ opacity: hov && img2 ? 0 : 1 }}
+          />
+        )}
         {/* Secondary image (hover) */}
-        <img
-          src={img2}
-          alt={product.name}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: hov ? 1 : 0 }}
-        />
+        {img2 && (
+          <img
+            src={img2}
+            alt={product.name}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+            style={{ opacity: hov ? 1 : 0 }}
+          />
+        )}
 
-        {tag && (
+        {product.stock === 0 ? (
+          <span
+            className="absolute top-3 left-3 text-xs tracking-widest uppercase px-2 py-1"
+            style={{ background: CHARCOAL, color: IVORY, fontFamily: SANS }}
+          >
+            Out of Stock
+          </span>
+        ) : product.stock <= 5 ? (
+          <span
+            className="absolute top-3 left-3 text-[10px] tracking-widest uppercase px-2 py-1"
+            style={{ background: MAROON, color: IVORY, fontFamily: SANS }}
+          >
+            Fast Selling - Only {product.stock} Left!
+          </span>
+        ) : tag ? (
           <span
             className="absolute top-3 left-3 text-xs tracking-widest uppercase px-2 py-1"
             style={{
@@ -61,7 +81,7 @@ export function ProductCard({
           >
             {tag}
           </span>
-        )}
+        ) : null}
 
         <button
           className="absolute top-3 right-3 p-2"
@@ -77,14 +97,15 @@ export function ProductCard({
           style={{ opacity: hov ? 1 : 0, background: "rgba(36,31,26,0.72)" }}
         >
           <button
-            className="w-full py-2 text-xs tracking-widest uppercase"
-            style={{ background: GOLD, color: IVORY, fontFamily: SANS }}
+            className="w-full py-2 text-xs tracking-widest uppercase transition-opacity disabled:opacity-50"
+            style={{ background: product.stock === 0 ? CHARCOAL : GOLD, color: IVORY, fontFamily: SANS }}
+            disabled={product.stock === 0}
             onClick={(e) => { 
               e.stopPropagation(); 
-              if (onAdd) onAdd(product); 
+              if (product.stock > 0 && onAdd) onAdd(product); 
             }}
           >
-            Add to Cart
+            {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
           </button>
         </div>
       </div>
