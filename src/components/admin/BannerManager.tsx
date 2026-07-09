@@ -47,13 +47,14 @@ export default function BannerManager() {
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
       
-      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+      const { signature, timestamp, cloudName, apiKey, folder } = await sigRes.json();
 
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
       formDataUpload.append("api_key", apiKey);
       formDataUpload.append("timestamp", timestamp.toString());
       formDataUpload.append("signature", signature);
+      formDataUpload.append("folder", folder);
 
       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: "POST",

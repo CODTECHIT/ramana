@@ -117,7 +117,7 @@ export default function ProductManager() {
       });
       if (!sigRes.ok) throw new Error("Could not get upload signature");
       
-      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+      const { signature, timestamp, cloudName, apiKey, folder } = await sigRes.json();
 
       // 2. Upload direct to Cloudinary
       const formDataUpload = new FormData();
@@ -125,8 +125,7 @@ export default function ProductManager() {
       formDataUpload.append("api_key", apiKey);
       formDataUpload.append("timestamp", timestamp.toString());
       formDataUpload.append("signature", signature);
-      // Optional: append folder if needed
-      // formDataUpload.append("folder", "ramana_jewells_products");
+      formDataUpload.append("folder", folder);
 
       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: "POST",

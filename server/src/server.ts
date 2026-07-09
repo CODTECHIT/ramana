@@ -29,6 +29,15 @@ import { Product } from "./models/Product.js";
 // Load env vars
 dotenv.config();
 
+// Startup Sanity Checks
+const requiredEnvVars = ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET", "MONGODB_URI"];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`🚨 FATAL ERROR: Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
+
 const app = express();
 app.set("trust proxy", 1);
 
@@ -65,6 +74,26 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 login/register attempts per 15 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many login attempts, please try again after 15 minutes",
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Max 5 reset requests per hour per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many password reset attempts, please try again after 1 hour",
+});
+
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/forgot-password", passwordResetLimiter);
 app.use("/api/", apiLimiter);
 
 // Routes
@@ -90,11 +119,27 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "success", message: "Server is healthy and running." });
 });
 
+import { errorHandler } from "./middleware/errorHandler.js";
+app.use(errorHandler);
+
+import Razorpay from "razorpay";
+import { startReconciliationJob } from "./jobs/reconciliation.js";
+
 // Start Server
 if (process.env.NODE_ENV !== "production" || process.env.RUN_LOCAL === "true") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    
+    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+      const razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
+      startReconciliationJob(razorpay);
+    } else {
+      console.warn("⚠️ Razorpay keys missing, skipping Reconciliation Job.");
+    }
   });
 }
 

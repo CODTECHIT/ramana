@@ -8,6 +8,12 @@ export interface IOrderItem {
   variant?: string; // e.g. "Size 18" or metal purity
 }
 
+export interface IStatusHistory {
+  status: string;
+  timestamp: Date;
+  comment?: string;
+}
+
 export interface IOrder extends Document {
   orderNumber: string;
   customer?: Types.ObjectId; // null if guest checkout
@@ -17,7 +23,14 @@ export interface IOrder extends Document {
   shippingFee: number;
   tax: number;
   total: number;
-  status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+  
+  orderStatus: "Created" | "Confirmed" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+  paymentStatus: "Pending" | "Authorized" | "Captured" | "Failed" | "Refunded";
+  
+  idempotencyKey?: string;
+  stockDeducted: boolean;
+  statusHistory: IStatusHistory[];
+
   shippingAddress: {
     street: string;
     city: string;
@@ -47,6 +60,15 @@ const OrderItemSchema = new Schema<IOrderItem>(
   { _id: false },
 );
 
+const StatusHistorySchema = new Schema<IStatusHistory>(
+  {
+    status: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    comment: { type: String },
+  },
+  { _id: false }
+);
+
 const OrderSchema: Schema = new Schema(
   {
     orderNumber: { type: String, required: true, unique: true, index: true },
@@ -61,12 +83,27 @@ const OrderSchema: Schema = new Schema(
     shippingFee: { type: Number, required: true, default: 0 },
     tax: { type: Number, required: true, default: 0 },
     total: { type: Number, required: true },
-    status: {
+    
+    orderStatus: {
       type: String,
-      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
-      default: "Processing",
+      enum: ["Created", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Created",
       index: true,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Authorized", "Captured", "Failed", "Refunded"],
+      default: "Pending",
+      index: true,
+    },
+    
+    idempotencyKey: { 
+      type: String, 
+      index: { unique: true, sparse: true } 
+    },
+    stockDeducted: { type: Boolean, default: false },
+    statusHistory: [StatusHistorySchema],
+
     shippingAddress: {
       street: { type: String, required: true },
       city: { type: String, required: true },
@@ -95,6 +132,53 @@ OrderSchema.pre("validate", function (next) {
     );
   }
   next();
+});
+
+OrderSchema.pre("save", function (next) {
+  if (this.isModified("orderStatus") && !this.isNew) {
+    const original = this.$locals.originalOrderStatus || "Created";
+    const current = this.orderStatus;
+    
+    // Valid transitions
+    const validTransitions: Record<string, string[]> = {
+      "Created": ["Confirmed", "Cancelled"],
+      "Confirmed": ["Processing", "Cancelled"],
+      "Processing": ["Shipped", "Cancelled"],
+      "Shipped": ["Delivered", "Cancelled"],
+      "Delivered": [],
+      "Cancelled": []
+    };
+
+    if (validTransitions[original] && !validTransitions[original].includes(current)) {
+      // In a real system, you might throw an Error here.
+      // But we will just log a warning to avoid breaking any custom flows immediately.
+      console.warn(`[State Machine] Invalid order status transition from ${original} to ${current} on order ${this.orderNumber}`);
+    }
+  }
+
+  if (this.isModified("paymentStatus") && !this.isNew) {
+    const original = this.$locals.originalPaymentStatus || "Pending";
+    const current = this.paymentStatus;
+    
+    const validTransitions: Record<string, string[]> = {
+      "Pending": ["Authorized", "Captured", "Failed"],
+      "Authorized": ["Captured", "Failed"],
+      "Captured": ["Refunded"],
+      "Failed": [],
+      "Refunded": []
+    };
+
+    if (validTransitions[original] && !validTransitions[original].includes(current)) {
+      console.warn(`[State Machine] Invalid payment status transition from ${original} to ${current} on order ${this.orderNumber}`);
+    }
+  }
+  next();
+});
+
+// Capture original state before save
+OrderSchema.post("init", function(doc) {
+  doc.$locals.originalOrderStatus = doc.orderStatus;
+  doc.$locals.originalPaymentStatus = doc.paymentStatus;
 });
 
 export const Order =

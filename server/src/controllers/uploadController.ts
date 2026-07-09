@@ -13,14 +13,17 @@ export const getUploadSignature = async (req: Request, res: Response) => {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
+    const folder = req.query.folder ? String(req.query.folder) : "ramana";
+
     const signature = cloudinary.utils.api_sign_request(
-      { timestamp },
+      { timestamp, folder },
       process.env.CLOUDINARY_API_SECRET as string
     );
 
     res.status(200).json({
       signature,
       timestamp,
+      folder,
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY
     });

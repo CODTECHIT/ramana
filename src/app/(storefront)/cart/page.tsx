@@ -19,10 +19,13 @@ export default function CartPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
+    const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   const [step, setStep] = useState(0);
@@ -30,6 +33,15 @@ export default function CartPage() {
   const [pay, setPay] = useState("upi");
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccessNum, setOrderSuccessNum] = useState<string | null>(null);
+  const [idempotencyKey, setIdempotencyKey] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.crypto && window.crypto.randomUUID) {
+      setIdempotencyKey(window.crypto.randomUUID());
+    } else {
+      setIdempotencyKey(Math.random().toString(36).substring(2) + Date.now().toString(36));
+    }
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (!addr.name || !addr.phone || !addr.street || !addr.city || !addr.pin) {
@@ -63,7 +75,10 @@ export default function CartPage() {
 
       let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey
+        },
         credentials: "include",
         body: JSON.stringify(payload),
       });
@@ -77,7 +92,10 @@ export default function CartPage() {
         if (refreshRes.ok) {
           res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "Idempotency-Key": idempotencyKey
+            },
             credentials: "include",
             body: JSON.stringify(payload),
           });
@@ -155,7 +173,8 @@ export default function CartPage() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const shipping  = 0;
-  const total     = subtotal + shipping;
+  const tax       = Math.round(subtotal * 0.03);
+  const total     = subtotal + shipping + tax;
 
   const STEPS = ["Cart", "Address", "Payment"];
 
@@ -381,11 +400,14 @@ export default function CartPage() {
               </div>
 
               <div className="space-y-2 pb-4 mb-4" style={{ borderBottom: `1px solid rgba(201,162,39,0.12)` }}>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm mb-2">
                   <span style={{ color: SMOKE, fontFamily: SANS }}>Subtotal</span>
                   <span style={{ color: CHARCOAL, fontFamily: SANS }}>{fmt(subtotal)}</span>
                 </div>
-
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: SMOKE, fontFamily: SANS }}>Estimated GST (3%)</span>
+                  <span style={{ color: CHARCOAL, fontFamily: SANS }}>{fmt(tax)}</span>
+                </div>
               </div>
 
               <div className="flex justify-between mb-6">

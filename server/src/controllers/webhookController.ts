@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import crypto from "crypto";
 import { Order } from "../models/Order.js";
+import { processPaymentSuccess } from "../services/paymentService.js";
 
 export const razorpayWebhook = async (req: Request, res: Response) => {
   try {
@@ -35,21 +36,26 @@ export const razorpayWebhook = async (req: Request, res: Response) => {
       const payment = eventPayload.payload.payment.entity;
       const orderId = payment.order_id;
       
-      const order = await Order.findOneAndUpdate(
-        { razorpayOrderId: orderId, status: "Pending" },
-        { 
-          status: "Processing", 
-          "paymentDetails.transactionId": payment.id 
-        },
-        { new: true }
-      );
-      
-      if (order) {
-        console.log(`Payment captured for order ${order.orderNumber}`);
+      const result = await processPaymentSuccess(orderId, payment.id, "Webhook");
+      if (result.success) {
+        console.log(`Payment captured and processed for Razorpay order ${orderId}`);
+      } else {
+        console.log(`Payment processed but overselling detected for Razorpay order ${orderId}`);
       }
     } else if (event === "payment.failed") {
       const payment = eventPayload.payload.payment.entity;
       const orderId = payment.order_id;
+
+      const order = await Order.findOne({ razorpayOrderId: orderId, paymentStatus: "Pending" });
+      if (order) {
+         order.orderStatus = "Cancelled";
+         order.paymentStatus = "Failed";
+         order.statusHistory.push(
+            { status: "Order Status: Cancelled", comment: "Payment failed via webhook" },
+            { status: "Payment Status: Failed", comment: "Payment failed via webhook" }
+         );
+         await order.save();
+      }
 
       console.log(`Payment failed for Razorpay order ${orderId}`);
     }

@@ -176,7 +176,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
 
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     await user.save();
 
     // Send email with the raw token (frontend will pass this back to verify endpoint)

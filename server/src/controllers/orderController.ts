@@ -8,15 +8,31 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import { z } from "zod";
 import { sendOrderInvoiceEmail, sendTrackingUpdateEmail } from "../utils/mail.js";
+import { processPaymentSuccess } from "../services/paymentService.js";
 
 dotenv.config();
 
+if (!process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables");
+}
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_mockkey",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "mocksecret",
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export const createOrder = async (req: Request, res: Response) => {
+  const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
+
+  if (idempotencyKey) {
+    const existingOrder = await Order.findOne({ idempotencyKey });
+    if (existingOrder) {
+      // Idempotency hit: return existing order
+      return res.status(200).json(existingOrder);
+    }
+  }
+
+  const session = await mongoose.startSession();
   try {
     const { items, shippingAddress, paymentMethod, guestInfo } = req.body;
 
@@ -30,10 +46,21 @@ export const createOrder = async (req: Request, res: Response) => {
       message: "Item must have either productId or id"
     });
 
-    const parsedItems = z.array(itemSchema).safeParse(items);
+    const addressSchema = z.object({
+      street: z.string().min(3).max(255),
+      city: z.string().min(2).max(100),
+      state: z.string().min(2).max(100),
+      pin: z.string().min(4).max(12),
+    });
 
+    const parsedItems = z.array(itemSchema).safeParse(items);
     if (!parsedItems.success || parsedItems.data.length === 0) {
       return res.status(400).json({ message: "Invalid or empty cart items" });
+    }
+
+    const parsedAddress = addressSchema.safeParse(shippingAddress);
+    if (!parsedAddress.success) {
+      return res.status(400).json({ message: "Invalid shipping address details", errors: parsedAddress.error.errors });
     }
 
     const validatedItems = parsedItems.data;
@@ -60,6 +87,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
     // Construct Bulk Operations for Atomic Update
     const bulkOps = [];
+    const isCOD = paymentMethod === "Cash on Delivery";
 
     for (const item of validatedItems) {
       const idOrSlug = item.productId || item.id;
@@ -84,19 +112,13 @@ export const createOrder = async (req: Request, res: Response) => {
         variant: item.variant || "",
       });
 
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: product._id, stock: { $gte: item.qty } },
-          update: { $inc: { stock: -item.qty } }
-        }
-      });
-    }
-
-    // Execute atomic stock deduction
-    if (bulkOps.length > 0) {
-      const result = await Product.bulkWrite(bulkOps);
-      if (result.modifiedCount !== validatedItems.length) {
-        return res.status(400).json({ message: "Race condition detected: Insufficient stock during checkout." });
+      if (isCOD) {
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: product._id, stock: { $gte: item.qty } },
+            update: { $inc: { stock: -item.qty } }
+          }
+        });
       }
     }
 
@@ -106,6 +128,9 @@ export const createOrder = async (req: Request, res: Response) => {
 
     const orderNumber = "JW-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100);
 
+    const orderStatus = isCOD ? "Confirmed" : "Created";
+    const paymentStatus = "Pending";
+
     const orderData: any = {
       orderNumber,
       items: resolvedItems,
@@ -113,24 +138,28 @@ export const createOrder = async (req: Request, res: Response) => {
       shippingFee,
       tax,
       total,
-      shippingAddress,
+      shippingAddress: parsedAddress.data,
       paymentMethod,
-      status: paymentMethod === "Cash on Delivery" ? "Processing" : "Pending"
+      orderStatus,
+      paymentStatus,
+      idempotencyKey,
+      statusHistory: [
+        { status: `Order Status: ${orderStatus}`, comment: "Order initialized" },
+        { status: `Payment Status: ${paymentStatus}`, comment: "Payment initialized" }
+      ]
     };
 
     if (req.user) {
       orderData.customer = req.user.id;
     } else {
-      // Revert stock if auth fails
-      const revertOps = bulkOps.map(op => ({
-        updateOne: { filter: op.updateOne.filter, update: { $inc: { stock: op.updateOne.update.$inc.stock * -1 } } }
-      }));
-      await Product.bulkWrite(revertOps);
-      return res.status(401).json({ message: "You must be logged in to place an order." });
+      if (!guestInfo) {
+         return res.status(401).json({ message: "You must be logged in to place an order, or provide guest info." });
+      }
+      orderData.guestInfo = guestInfo;
     }
 
     let razorpayOrder = null;
-    if (paymentMethod !== "Cash on Delivery") {
+    if (!isCOD) {
       try {
         razorpayOrder = await razorpay.orders.create({
           amount: total * 100, // paise
@@ -139,29 +168,57 @@ export const createOrder = async (req: Request, res: Response) => {
         });
         orderData.razorpayOrderId = razorpayOrder.id;
       } catch (rzpErr) {
-        // Revert stock if razorpay fails
-        const revertOps = bulkOps.map(op => ({
-          updateOne: { filter: { _id: op.updateOne.filter._id }, update: { $inc: { stock: op.updateOne.update.$inc.stock * -1 } } }
-        }));
-        await Product.bulkWrite(revertOps);
         console.error("Razorpay Error:", rzpErr);
         return res.status(500).json({ message: "Payment gateway error" });
       }
     }
 
-    const order = await Order.create(orderData);
-    res.status(201).json(order);
+    session.startTransaction();
+
+    // Execute atomic stock deduction (only for COD, Razorpay deductions happen on webhook)
+    if (bulkOps.length > 0) {
+      const result = await Product.bulkWrite(bulkOps, { session });
+      if (result.modifiedCount !== bulkOps.length) {
+        await session.abortTransaction();
+        return res.status(400).json({ message: "Race condition detected: Insufficient stock during checkout." });
+      }
+    }
+
+    const order = await Order.create([orderData], { session });
+    await session.commitTransaction();
+
+    res.status(201).json(order[0]);
   } catch (error) {
+    if (session.inTransaction()) {
+       await session.abortTransaction();
+    }
     console.error("Create Order Error:", error);
     res.status(500).json({ message: "Server error creating order" });
+  } finally {
+    session.endSession();
   }
 };
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
+    // Origin / CSRF check to prevent Cross-Site Request Forgery on payment verification
+    const origin = req.get("origin") || req.get("referer");
+    const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000"];
+    
+    // Check if origin starts with any allowed origin
+    const isValidOrigin = origin && allowedOrigins.some(allowed => origin.startsWith(allowed));
+    
+    if (process.env.NODE_ENV === "production" && !isValidOrigin) {
+      console.warn(`[Security] CSRF / Origin mismatch in verifyPayment. Origin: ${origin}`);
+      return res.status(403).json({ message: "Invalid request origin" });
+    }
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    const secret = process.env.RAZORPAY_KEY_SECRET || "mocksecret";
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret) {
+      return res.status(500).json({ message: "Payment configuration missing" });
+    }
     const shasum = crypto.createHmac("sha256", secret);
     shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = shasum.digest("hex");
@@ -170,28 +227,26 @@ export const verifyPayment = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid signature" });
     }
 
-    const order = await Order.findOneAndUpdate(
-      { razorpayOrderId: razorpay_order_id },
-      { 
-        status: "Processing", 
-        "paymentDetails.transactionId": razorpay_payment_id 
-      },
-      { new: true }
-    ).populate("customer", "name email");
+    // Call the centralized payment service
+    const paymentResult = await processPaymentSuccess(razorpay_order_id, razorpay_payment_id, "Frontend");
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    if (!paymentResult.success) {
+      return res.status(400).json({ message: paymentResult.message });
     }
 
-    // Send invoice email asynchronously (do not block response)
-    const customerEmail = (order.customer as any)?.email || order.guestInfo?.email;
-    if (customerEmail) {
-      sendOrderInvoiceEmail(order, customerEmail).catch(err =>
-        console.error("Invoice email error:", err)
-      );
+    const order = await Order.findById(paymentResult.order?._id).populate("customer", "name email");
+
+    if (order) {
+      // Send invoice email asynchronously
+      const customerEmail = (order.customer as any)?.email || order.guestInfo?.email;
+      if (customerEmail) {
+        sendOrderInvoiceEmail(order, customerEmail).catch(err =>
+          console.error("Invoice email error:", err)
+        );
+      }
     }
 
-    res.status(200).json({ message: "Payment verified successfully", order });
+    res.status(200).json({ message: paymentResult.message, order });
   } catch (error) {
     console.error("Payment Verification Error:", error);
     res.status(500).json({ message: "Server error verifying payment" });
@@ -218,32 +273,62 @@ export const adminGetOrders = async (req: Request, res: Response) => {
 
 export const adminUpdateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { status, trackingId, trackingLink, courierPartner } = req.body;
+    const { orderStatus, trackingId, trackingLink, courierPartner } = req.body;
 
-    const updatePayload: any = { status };
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Restore stock if cancelling an order that already had stock deducted (e.g. Confirmed/Processing/Shipped/Delivered)
+    if (orderStatus === "Cancelled" && order.orderStatus !== "Cancelled" && order.orderStatus !== "Created") {
+      const bulkOps = order.items.map((item: any) => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: { $inc: { stock: item.qty } }
+        }
+      }));
+      if (bulkOps.length > 0) {
+        await Product.bulkWrite(bulkOps);
+      }
+    }
+
+    const updatePayload: any = { orderStatus };
     if (trackingId !== undefined) updatePayload.trackingId = trackingId;
     if (trackingLink !== undefined) updatePayload.trackingLink = trackingLink;
     if (courierPartner !== undefined) updatePayload.courierPartner = courierPartner;
 
-    const order = await Order.findByIdAndUpdate(
+    const statusHistoryUpdate = { 
+      status: `Order Status: ${orderStatus}`, 
+      comment: "Updated by Admin" 
+    };
+
+    if (orderStatus === "Cancelled") {
+       updatePayload.paymentStatus = "Refunded";
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
-      updatePayload,
+      { 
+        $set: updatePayload, 
+        $push: { 
+          statusHistory: orderStatus === "Cancelled" 
+            ? [ statusHistoryUpdate, { status: "Payment Status: Refunded", comment: "Cancelled by Admin" } ]
+            : statusHistoryUpdate 
+        } 
+      },
       { new: true }
     ).populate("customer", "name email");
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
     // Fire tracking email when tracking link is updated
-    if (trackingLink && trackingLink.trim() !== "") {
-      const customerEmail = (order.customer as any)?.email;
+    if (trackingLink && trackingLink.trim() !== "" && order.trackingLink !== trackingLink) {
+      const customerEmail = (updatedOrder?.customer as any)?.email;
       if (customerEmail) {
-        sendTrackingUpdateEmail(order, customerEmail).catch(err =>
+        sendTrackingUpdateEmail(updatedOrder as any, customerEmail).catch(err =>
           console.error("Tracking email error:", err)
         );
       }
     }
 
-    res.status(200).json(order);
+    res.status(200).json(updatedOrder);
   } catch (error) {
     res.status(500).json({ message: "Server error updating order" });
   }
