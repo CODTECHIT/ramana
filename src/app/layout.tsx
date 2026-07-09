@@ -2,8 +2,48 @@ import type { Metadata } from "next";
 import "../styles/index.css";
 
 export const metadata: Metadata = {
-  title: "Ramana Jewells - Premium Jewellery",
-  description: "Three generations of South Indian master craftsmen preserving the art of temple jewellery.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"),
+  title: {
+    default: "Ramana Jewells | Premium Handcrafted Jewellery",
+    template: "%s | Ramana Jewells",
+  },
+  description: "Three generations of South Indian master craftsmen preserving the art of temple jewellery. Explore our exclusive gold, bridal, and antique collections.",
+  keywords: ["temple jewellery", "gold", "south indian jewellery", "handcrafted", "premium", "bridal jewelry", "antique gold", "Ramana Jewells"],
+  authors: [{ name: "Ramana Jewells" }],
+  creator: "Ramana Jewells",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "/",
+    siteName: "Ramana Jewells",
+    title: "Ramana Jewells | Premium Handcrafted Jewellery",
+    description: "Three generations of South Indian master craftsmen preserving the art of temple jewellery.",
+    images: [
+      {
+        url: "/og-image.jpg", // Make sure to place an og-image.jpg in your public folder!
+        width: 1200,
+        height: 630,
+        alt: "Ramana Jewells",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ramana Jewells | Premium Handcrafted Jewellery",
+    description: "Three generations of South Indian master craftsmen preserving the art of temple jewellery.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({
