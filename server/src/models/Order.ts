@@ -136,8 +136,8 @@ OrderSchema.pre("validate", function (next) {
 
 OrderSchema.pre("save", function (next) {
   if (this.isModified("orderStatus") && !this.isNew) {
-    const original = this.$locals.originalOrderStatus || "Created";
-    const current = this.orderStatus;
+    const original = (this.$locals.originalOrderStatus as string) || "Created";
+    const current = this.orderStatus as string;
     
     // Valid transitions
     const validTransitions: Record<string, string[]> = {
@@ -157,8 +157,8 @@ OrderSchema.pre("save", function (next) {
   }
 
   if (this.isModified("paymentStatus") && !this.isNew) {
-    const original = this.$locals.originalPaymentStatus || "Pending";
-    const current = this.paymentStatus;
+    const original = (this.$locals.originalPaymentStatus as string) || "Pending";
+    const current = this.paymentStatus as string;
     
     const validTransitions: Record<string, string[]> = {
       "Pending": ["Authorized", "Captured", "Failed"],
