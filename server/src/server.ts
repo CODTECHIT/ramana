@@ -58,7 +58,13 @@ app.use("/api/orders/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000", "https://ramana-ruby.vercel.app", "http://localhost:3000"];
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3000",
+  "https://ramana-ruby.vercel.app",
+  "http://localhost:3000",
+  "https://www.ramanajewells.com",
+  "https://ramanajewells.com"
+];
 app.use(cors({ 
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
