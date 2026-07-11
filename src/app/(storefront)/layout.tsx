@@ -5,6 +5,7 @@ import { Footer } from "../../components/Footer";
 import { UtilityBar } from "../../components/SharedUI";
 import { CartProvider, useCart } from "../../components/CartProvider";
 import { TICKER, Constants } from "../../lib/mock-data";
+import { Toaster } from "sonner";
 
 function StorefrontWrapper({ children }: { children: React.ReactNode }) {
   const { cartCount } = useCart();
@@ -14,6 +15,7 @@ function StorefrontWrapper({ children }: { children: React.ReactNode }) {
       <Header cartCount={cartCount} />
       {children}
       <Footer />
+      <Toaster position="bottom-right" richColors />
     </div>
   );
 }

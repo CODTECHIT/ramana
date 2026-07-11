@@ -123,8 +123,8 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     const shippingFee = 0; // Free shipping over 50k
-    const tax = Math.round(subtotal * 0.03); // 3% GST on gold/jewellery
-    const total = subtotal + shippingFee + tax;
+    const tax = 0;
+    const total = subtotal + shippingFee;
 
     const orderNumber = "JW-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100);
 

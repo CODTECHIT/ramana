@@ -28,7 +28,7 @@ export const COLLECTIONS = [
 
 export const TICKER = [
   "25,000+ smiles delivered ❤️",
-  "GST also provided",
+  "Secure Payments & Free Shipping",
 ];
 
 export const REV_DATA = [

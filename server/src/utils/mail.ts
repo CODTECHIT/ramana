@@ -145,10 +145,6 @@ export const sendOrderInvoiceEmail = async (order: any, customerEmail: string) =
           <td style="padding: 5px 10px; text-align: right; color: #666;">Shipping:</td>
           <td style="padding: 5px 10px; text-align: right; font-weight: 500;">${order.shippingFee === 0 ? "FREE" : `₹${order.shippingFee.toLocaleString("en-IN")}`}</td>
         </tr>
-        <tr>
-          <td style="padding: 5px 10px; text-align: right; color: #666;">GST (3%):</td>
-          <td style="padding: 5px 10px; text-align: right; font-weight: 500;">₹${order.tax.toLocaleString("en-IN")}</td>
-        </tr>
         <tr style="border-top: 1.5px solid #eee;">
           <td style="padding: 10px; text-align: right; font-weight: bold; font-size: 16px; color: #1a1a2e;">Total:</td>
           <td style="padding: 10px; text-align: right; font-weight: bold; font-size: 16px; color: #C9A227;">₹${order.total.toLocaleString("en-IN")}</td>

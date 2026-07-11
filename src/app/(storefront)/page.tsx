@@ -20,6 +20,7 @@ import { ProductCard } from "../../components/ProductCard";
 import { useCart } from "../../components/CartProvider";
 import { I, COLLECTIONS, Constants } from "../../lib/mock-data";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const { GOLD, IVORY, CHARCOAL, MIST, SANS, SERIF } = Constants;
 
@@ -103,11 +104,14 @@ export default function HomePage() {
         {isLoading ? (
           <div className="absolute inset-0 bg-gray-200 animate-pulse" />
         ) : (
-          <img
+          <Image
             src={heroImageSrc}
             alt={currentHero?.title || "South Indian bridal jewellery editorial"}
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 transform scale-100"
-            key={heroImageSrc} // Key forces image reload and transitions naturally
+            fill
+            priority
+            quality={90}
+            className="object-cover transition-all duration-700 transform scale-100"
+            key={heroImageSrc}
           />
         )}
         {/* Mobile Gradient Overlay */}
@@ -238,10 +242,12 @@ export default function HomePage() {
                   }
                   onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
                 >
-                  <img
+                  <Image
                     src={cat.heroImage || cat.img}
                     alt={cat.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 128px, 128px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
                 <p
@@ -311,10 +317,12 @@ export default function HomePage() {
                   className="overflow-hidden"
                   style={{ aspectRatio: i === 0 ? "3/4" : "4/5" }}
                 >
-                  <img
+                  <Image
                     src={col.image || col.img}
                     alt={col.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
                 <div

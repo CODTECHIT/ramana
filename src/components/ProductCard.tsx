@@ -5,6 +5,7 @@ import { Heart } from "lucide-react";
 import { Constants, fmt, I } from "../lib/mock-data";
 import { useWishlist } from "./WishlistProvider";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const { GOLD, MAROON, IVORY, CHARCOAL, MIST, SMOKE, SANS, SERIF } = Constants;
 
@@ -37,21 +38,23 @@ export function ProductCard({
       >
         {/* Primary image */}
         {img1 && (
-          <img
+          <Image
             src={img1}
             alt={product.name}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover transition-opacity duration-500"
             style={{ opacity: hov && img2 ? 0 : 1 }}
           />
         )}
         {/* Secondary image (hover) */}
         {img2 && (
-          <img
+          <Image
             src={img2}
             alt={product.name}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover transition-opacity duration-500"
             style={{ opacity: hov ? 1 : 0 }}
           />
         )}

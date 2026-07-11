@@ -269,10 +269,6 @@ export default function OrderManager() {
                   <span>Shipping Fee:</span>
                   <span className="font-medium text-gray-800">{selectedOrder.shippingFee === 0 ? "FREE" : fmt(selectedOrder.shippingFee)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>GST (3%):</span>
-                  <span className="font-medium text-gray-800">{fmt(selectedOrder.tax)}</span>
-                </div>
                 <div className="flex justify-between border-t border-gray-100 pt-2 text-base font-semibold" style={{ color: "#1A1A2E" }}>
                   <span>Total:</span>
                   <span style={{ color: GOLD }}>{fmt(selectedOrder.total)}</span>

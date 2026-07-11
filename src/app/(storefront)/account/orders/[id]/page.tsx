@@ -116,11 +116,6 @@ export default function OrderDetailPage() {
               <div className="flex justify-between text-sm" style={{ color: SMOKE, fontFamily: SANS }}>
                 <span>Shipping</span><span>{order.shippingFee === 0 ? "Free" : fmt(order.shippingFee)}</span>
               </div>
-              {order.tax > 0 && (
-                <div className="flex justify-between text-sm" style={{ color: SMOKE, fontFamily: SANS }}>
-                  <span>Tax (GST)</span><span>{fmt(order.tax)}</span>
-                </div>
-              )}
               <div className="flex justify-between text-base font-bold pt-2 border-t" style={{ borderColor: MIST, color: CHARCOAL, fontFamily: SERIF }}>
                 <span>Total</span><span>{fmt(order.total)}</span>
               </div>

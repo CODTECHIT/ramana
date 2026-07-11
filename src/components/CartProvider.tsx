@@ -8,6 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import { CartItem } from "../lib/mock-data";
+import { toast } from "sonner";
 
 interface CartContextType {
   cart: CartItem[];
@@ -76,6 +77,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
           variant: variantStr,
         },
       ];
+    });
+
+    toast.success("Added to Cart", {
+      description: `${product.name} has been added to your cart.`,
+      duration: 3000,
     });
   };
 

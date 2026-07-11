@@ -173,8 +173,7 @@ export default function CartPage() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const shipping  = 0;
-  const tax       = Math.round(subtotal * 0.03);
-  const total     = subtotal + shipping + tax;
+  const total     = subtotal + shipping;
 
   const STEPS = ["Cart", "Address", "Payment"];
 
@@ -403,10 +402,6 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm mb-2">
                   <span style={{ color: SMOKE, fontFamily: SANS }}>Subtotal</span>
                   <span style={{ color: CHARCOAL, fontFamily: SANS }}>{fmt(subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span style={{ color: SMOKE, fontFamily: SANS }}>Estimated GST (3%)</span>
-                  <span style={{ color: CHARCOAL, fontFamily: SANS }}>{fmt(tax)}</span>
                 </div>
               </div>
 
