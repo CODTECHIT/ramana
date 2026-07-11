@@ -2,15 +2,21 @@ import type { Metadata } from "next";
 import "../styles/index.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "https://ramanajewells.com"),
   title: {
-    default: "Ramana Jewells | Premium Handcrafted Jewellery",
+    default: "Ramana Jewells | Premium Handcrafted South Indian Temple Jewellery",
     template: "%s | Ramana Jewells",
   },
   description: "Three generations of South Indian master craftsmen preserving the art of temple jewellery. Explore our exclusive gold, bridal, and antique collections.",
-  keywords: ["temple jewellery", "gold", "south indian jewellery", "handcrafted", "premium", "bridal jewelry", "antique gold", "Ramana Jewells"],
-  authors: [{ name: "Ramana Jewells" }],
+  keywords: ["temple jewellery", "gold", "south indian jewellery", "handcrafted", "premium", "bridal jewelry", "antique gold", "Ramana Jewells", "kundan", "polki"],
+  authors: [{ name: "Ramana Jewells", url: "https://ramanajewells.com" }],
   creator: "Ramana Jewells",
+  publisher: "Ramana Jewells",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -23,7 +29,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg", // Make sure to place an og-image.jpg in your public folder!
         width: 1200,
         height: 630,
-        alt: "Ramana Jewells",
+        alt: "Ramana Jewells - Premium South Indian Jewellery",
       },
     ],
   },
