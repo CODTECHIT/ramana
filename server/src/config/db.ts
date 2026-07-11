@@ -21,10 +21,8 @@ export const connectDB = async () => {
     } else {
       console.error(error);
     }
-    // In development we avoid exiting the process to allow the server to start
-    // without a database. This makes it easier to develop UI without a local DB.
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1);
-    }
+    // Throw error so that the serverless function can handle it gracefully
+    // instead of crashing the Node process (which causes 500s on Vercel)
+    throw error;
   }
 };

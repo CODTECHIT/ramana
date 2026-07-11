@@ -41,8 +41,15 @@ for (const envVar of requiredEnvVars) {
 const app = express();
 app.set("trust proxy", 1);
 
-// Connect Database
-connectDB();
+// Ensure Database is connected before handling routes
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Webhook must be parsed as raw body before global express.json() applies
 app.use("/api/orders/webhook", express.raw({ type: "application/json" }));

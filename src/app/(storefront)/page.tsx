@@ -32,6 +32,7 @@ export default function HomePage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -67,7 +68,8 @@ export default function HomePage() {
           setCollections(COLLECTIONS);
         }
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -95,15 +97,19 @@ export default function HomePage() {
     <main>
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden transition-all duration-700 ease-in-out"
+        className="relative overflow-hidden transition-all duration-700 ease-in-out bg-[#FDF9F3]"
         style={{ height: "91vh", minHeight: 520 }}
       >
-        <img
-          src={heroImageSrc}
-          alt={currentHero?.title || "South Indian bridal jewellery editorial"}
-          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 transform scale-100"
-          key={heroImageSrc} // Key forces image reload and transitions naturally
-        />
+        {isLoading ? (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        ) : (
+          <img
+            src={heroImageSrc}
+            alt={currentHero?.title || "South Indian bridal jewellery editorial"}
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 transform scale-100"
+            key={heroImageSrc} // Key forces image reload and transitions naturally
+          />
+        )}
         {/* Mobile Gradient Overlay */}
         <div
           className="absolute inset-0 block md:hidden"
@@ -120,15 +126,16 @@ export default function HomePage() {
               "linear-gradient(115deg, rgba(36,31,26,0.85) 0%, rgba(36,31,26,0.3) 55%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 h-full flex flex-col justify-end pb-10 md:justify-center md:pb-0 px-6 md:px-20 max-w-3xl">
-          <p
-            className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5"
-            style={{
-              color: GOLD,
-              fontFamily: SANS,
-              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
-            }}
-          >
+        <div className="relative z-10 h-full w-full max-w-screen-xl mx-auto px-4 md:px-6 flex flex-col justify-end pb-10 md:justify-center md:pb-0">
+          <div className="max-w-3xl">
+            <p
+              className="text-xs tracking-[0.4em] uppercase mb-4 md:mb-5"
+              style={{
+                color: GOLD,
+                fontFamily: SANS,
+                textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+              }}
+            >
             {currentHero ? "Featured Collections" : "The 2026 Bridal Collection"}
           </p>
           <h1
@@ -170,6 +177,7 @@ export default function HomePage() {
               </GoldBtn>
             )}
           </div>
+          </div>
         </div>
 
         {/* Banner Navigation Indicators */}
@@ -208,36 +216,45 @@ export default function HomePage() {
           className="flex overflow-x-auto snap-x gap-4 md:gap-6 pb-4 md:pb-0 md:flex md:flex-wrap md:justify-center md:gap-y-8 md:overflow-visible"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {(categories.length > 7 && !showAllCategories ? categories.slice(0, 7) : categories).map((cat) => (
-            <button
-              key={cat.name}
-              className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3 group cursor-pointer snap-start"
-              onClick={() => router.push(`/collections/${cat.slug}`)}
-            >
-              <div
-                className="relative overflow-hidden rounded-full w-full aspect-square transition-all duration-300"
-                style={{ background: MIST }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.boxShadow = `0 0 0 2.5px ${GOLD}`)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-              >
-                <img
-                  src={cat.heroImage || cat.img}
-                  alt={cat.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+          {isLoading ? (
+            Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3">
+                <div className="w-full aspect-square rounded-full bg-gray-200 animate-pulse" />
+                <div className="h-3 w-16 bg-gray-200 animate-pulse rounded" />
               </div>
-              <p
-                className="text-xs tracking-widest uppercase text-center leading-tight"
-                style={{ color: CHARCOAL, fontFamily: SANS }}
+            ))
+          ) : (
+            (categories.length > 7 && !showAllCategories ? categories.slice(0, 7) : categories).map((cat) => (
+              <button
+                key={cat.name}
+                className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3 group cursor-pointer snap-start"
+                onClick={() => router.push(`/collections/${cat.slug}`)}
               >
-                {cat.name}
-              </p>
-            </button>
-          ))}
+                <div
+                  className="relative overflow-hidden rounded-full w-full aspect-square transition-all duration-300"
+                  style={{ background: MIST }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.boxShadow = `0 0 0 2.5px ${GOLD}`)
+                  }
+                  onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+                >
+                  <img
+                    src={cat.heroImage || cat.img}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                <p
+                  className="text-xs tracking-widest uppercase text-center leading-tight"
+                  style={{ color: CHARCOAL, fontFamily: SANS }}
+                >
+                  {cat.name}
+                </p>
+              </button>
+            ))
+          )}
 
-          {categories.length > 7 && (
+          {!isLoading && categories.length > 7 && (
             <button
               className="flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-3 group cursor-pointer"
               onClick={() => setShowAllCategories(!showAllCategories)}
@@ -278,52 +295,58 @@ export default function HomePage() {
           <SectionHeading center>Collections</SectionHeading>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {collections.map((col, i) => (
-            <div
-              key={col.title}
-              className="relative overflow-hidden cursor-pointer group"
-              style={{ background: MIST }}
-              onClick={() => router.push(col.link || "/collections/all")}
-            >
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} style={{ aspectRatio: i === 0 ? "3/4" : "4/5" }} className="w-full bg-gray-200 animate-pulse" />
+            ))
+          ) : (
+            collections.map((col, i) => (
               <div
-                className="overflow-hidden"
-                style={{ aspectRatio: i === 0 ? "3/4" : "4/5" }}
+                key={col.title}
+                className="relative overflow-hidden cursor-pointer group"
+                style={{ background: MIST }}
+                onClick={() => router.push(col.link || "/collections/all")}
               >
-                <img
-                  src={col.image || col.img}
-                  alt={col.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                <div
+                  className="overflow-hidden"
+                  style={{ aspectRatio: i === 0 ? "3/4" : "4/5" }}
+                >
+                  <img
+                    src={col.image || col.img}
+                    alt={col.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(0deg, rgba(36,31,26,0.88) 0%, rgba(36,31,26,0.1) 55%, transparent 100%)",
+                  }}
                 />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3
+                    className="text-xl font-normal mb-2"
+                    style={{ fontFamily: SERIF, color: IVORY }}
+                  >
+                    {col.title}
+                  </h3>
+                  <p
+                    className="text-xs leading-relaxed mb-4"
+                    style={{ color: "rgba(250,247,242,0.65)", fontFamily: SANS }}
+                  >
+                    {col.description || col.desc}
+                  </p>
+                  <span
+                    className="text-xs tracking-widest uppercase flex items-center gap-2 transition-opacity hover:opacity-70"
+                    style={{ color: GOLD, fontFamily: SANS }}
+                  >
+                    {col.cta} <ArrowRight size={11} />
+                  </span>
+                </div>
               </div>
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(0deg, rgba(36,31,26,0.88) 0%, rgba(36,31,26,0.1) 55%, transparent 100%)",
-                }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3
-                  className="text-xl font-normal mb-2"
-                  style={{ fontFamily: SERIF, color: IVORY }}
-                >
-                  {col.title}
-                </h3>
-                <p
-                  className="text-xs leading-relaxed mb-4"
-                  style={{ color: "rgba(250,247,242,0.65)", fontFamily: SANS }}
-                >
-                  {col.description || col.desc}
-                </p>
-                <span
-                  className="text-xs tracking-widest uppercase flex items-center gap-2 transition-opacity hover:opacity-70"
-                  style={{ color: GOLD, fontFamily: SANS }}
-                >
-                  {col.cta} <ArrowRight size={11} />
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 
@@ -338,9 +361,19 @@ export default function HomePage() {
           <SectionHeading center>Bestsellers</SectionHeading>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {products.map((p) => (
-            <ProductCard key={p.slug} product={p} onAdd={addToCart} />
-          ))}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-3">
+                 <div className="w-full aspect-square bg-gray-200 animate-pulse" />
+                 <div className="h-4 w-3/4 bg-gray-200 animate-pulse rounded" />
+                 <div className="h-4 w-1/2 bg-gray-200 animate-pulse rounded" />
+              </div>
+            ))
+          ) : (
+            products.map((p) => (
+              <ProductCard key={p.slug} product={p} onAdd={addToCart} />
+            ))
+          )}
         </div>
         <div className="text-center mt-12">
           <GoldBtn onClick={() => router.push("/collections/all")}>
