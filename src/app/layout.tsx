@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "../styles/index.css";
 
 export const metadata: Metadata = {
@@ -50,6 +51,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: "XrFzlsc3jvWinQoKT_Qlnp-igpEbyNXnBddbGMZx1DE",
+  },
 };
 
 export default function RootLayout({
@@ -64,7 +68,18 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet" />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-F7TSGVJ2FF" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-F7TSGVJ2FF');
+          `}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }
