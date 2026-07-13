@@ -101,9 +101,6 @@ export default function HomePage() {
         className="relative overflow-hidden transition-all duration-700 ease-in-out bg-[#FDF9F3]"
         style={{ height: "91vh", minHeight: 520 }}
       >
-        {isLoading ? (
-          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-        ) : (
           <Image
             src={heroImageSrc}
             alt={currentHero?.title || "South Indian bridal jewellery editorial"}
@@ -114,7 +111,6 @@ export default function HomePage() {
             className="object-cover transition-all duration-700 transform scale-100"
             key={heroImageSrc}
           />
-        )}
         {/* Mobile Gradient Overlay */}
         <div
           className="absolute inset-0 block md:hidden"
