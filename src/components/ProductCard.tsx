@@ -87,10 +87,12 @@ export function ProductCard({
         ) : null}
 
         <button
+          aria-label="Add to wishlist"
           className="absolute top-3 right-3 p-2"
           style={{ background: "rgba(250,247,242,0.9)" }}
           onClick={(e) => { e.stopPropagation(); toggleWishlist(product); }}
         >
+          <span className="sr-only">Add to wishlist</span>
           <Heart size={15} fill={inWishlist(product.slug) ? MAROON : "none"} stroke={inWishlist(product.slug) ? MAROON : CHARCOAL} />
         </button>
 
@@ -114,7 +116,7 @@ export function ProductCard({
       </div>
 
       <div className="p-4">
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: GOLD, fontFamily: SANS }}>
+        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: "#8A6B11", fontFamily: SANS }}>
           {categoryName}
         </p>
         <h3

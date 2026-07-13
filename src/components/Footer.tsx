@@ -69,20 +69,26 @@ export function Footer() {
                 href="https://www.instagram.com/ramana_jewells?igsh=MWxlN3h1c3Q0dTVuaA%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Instagram"
                 className="p-2 transition-opacity hover:opacity-70"
                 style={{ border: `1px solid rgba(201,162,39,0.3)`, color: GOLD }}
               >
+                <span className="sr-only">Instagram</span>
                 <Instagram size={14} />
               </a>
-              {[Facebook, Twitter, Youtube].map((Icon, i) => (
+              {[Facebook, Twitter, Youtube].map((Icon, i) => {
+                const labels = ["Facebook", "Twitter", "Youtube"];
+                return (
                 <button
                   key={i}
+                  aria-label={labels[i]}
                   className="p-2 transition-opacity hover:opacity-70"
                   style={{ border: `1px solid rgba(201,162,39,0.3)`, color: GOLD }}
                 >
+                  <span className="sr-only">{labels[i]}</span>
                   <Icon size={14} />
                 </button>
-              ))}
+              )})}
             </div>
             {whatsappNumber && (
               <a
@@ -99,12 +105,12 @@ export function Footer() {
 
           {cols.map((col) => (
             <div key={col.title} className="col-span-1">
-              <h4
+              <h3
                 className="text-xs tracking-[0.25em] uppercase mb-5"
                 style={{ color: GOLD, fontFamily: SANS }}
               >
                 {col.title}
-              </h4>
+              </h3>
               <ul className="space-y-2.5">
                 {col.items.map((item) => (
                   <li key={item.label}>

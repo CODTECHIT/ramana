@@ -60,7 +60,8 @@ export function Header({ cartCount }: { cartCount: number }) {
 
         {/* Mobile Hamburger (Left on mobile, hidden on desktop) */}
         <div className="lg:hidden flex-1 flex justify-start">
-          <button className="p-2 -ml-2" style={{ color: CHARCOAL }} onClick={() => setMobileOpen(!mobileOpen)}>
+          <button aria-label="Toggle menu" className="p-2 -ml-2" style={{ color: CHARCOAL }} onClick={() => setMobileOpen(!mobileOpen)}>
+            <span className="sr-only">Toggle menu</span>
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -158,20 +159,24 @@ export function Header({ cartCount }: { cartCount: number }) {
           <div className="flex items-center gap-3 ml-2" style={{ borderLeft: `1px solid rgba(201,162,39,0.2)`, paddingLeft: "1rem" }}>
             {/* Search Icon */}
             <button
+              aria-label="Search"
               onClick={() => setSearchOpen(!searchOpen)}
               className="p-1 transition-opacity hover:opacity-60 cursor-pointer"
               style={{ color: CHARCOAL }}
             >
+              <span className="sr-only">Search</span>
               <Search size={17} />
             </button>
 
             {/* Profile User Icon with Dropdown */}
             <div className="relative">
               <button
+                aria-label="User profile"
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="p-1 transition-opacity hover:opacity-60 cursor-pointer block"
                 style={{ color: CHARCOAL }}
               >
+                <span className="sr-only">User profile</span>
                 <User size={17} />
               </button>
               {profileDropdownOpen && (
@@ -238,10 +243,12 @@ export function Header({ cartCount }: { cartCount: number }) {
 
             {/* Wishlist Heart Icon */}
             <button
+              aria-label="Wishlist"
               onClick={() => setWishlistOpen(true)}
               className="p-1 transition-opacity hover:opacity-60 cursor-pointer relative"
               style={{ color: CHARCOAL }}
             >
+              <span className="sr-only">Wishlist</span>
               <Heart size={17} />
               {wishlistCount > 0 && (
                 <span
@@ -256,9 +263,11 @@ export function Header({ cartCount }: { cartCount: number }) {
             {/* Shopping Bag Icon */}
             <Link
               href="/cart"
+              aria-label="Cart"
               className="relative p-1 transition-opacity hover:opacity-60"
               style={{ color: CHARCOAL }}
             >
+              <span className="sr-only">Cart</span>
               <ShoppingBag size={17} />
               {cartCount > 0 && (
                 <span
@@ -275,17 +284,21 @@ export function Header({ cartCount }: { cartCount: number }) {
         {/* Mobile Icons (Right on mobile, hidden on desktop) */}
         <div className="lg:hidden flex-1 flex justify-end items-center gap-2">
           <button
+            aria-label="Search mobile"
             onClick={() => setSearchOpen(!searchOpen)}
             className="p-2 transition-opacity hover:opacity-60"
             style={{ color: CHARCOAL }}
           >
+            <span className="sr-only">Search mobile</span>
             <Search size={20} />
           </button>
           <button
+            aria-label="Wishlist mobile"
             onClick={() => setWishlistOpen(true)}
             className="p-2 transition-opacity hover:opacity-60 relative"
             style={{ color: CHARCOAL }}
           >
+            <span className="sr-only">Wishlist mobile</span>
             <Heart size={20} />
             {wishlistCount > 0 && (
               <span
@@ -298,9 +311,11 @@ export function Header({ cartCount }: { cartCount: number }) {
           </button>
           <Link
             href="/cart"
+            aria-label="Cart mobile"
             className="relative p-2 transition-opacity hover:opacity-60"
             style={{ color: CHARCOAL }}
           >
+            <span className="sr-only">Cart mobile</span>
             <ShoppingBag size={20} />
             {cartCount > 0 && (
               <span

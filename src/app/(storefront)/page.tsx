@@ -109,7 +109,8 @@ export default function HomePage() {
             alt={currentHero?.title || "South Indian bridal jewellery editorial"}
             fill
             priority
-            quality={90}
+            fetchPriority="high"
+            quality={60}
             className="object-cover transition-all duration-700 transform scale-100"
             key={heroImageSrc}
           />
@@ -321,6 +322,7 @@ export default function HomePage() {
                     src={col.image || col.img}
                     alt={col.title}
                     fill
+                    quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />

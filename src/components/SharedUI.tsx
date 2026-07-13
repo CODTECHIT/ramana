@@ -39,7 +39,7 @@ export function GoldDivider() {
 
 export function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs tracking-[0.3em] uppercase mb-2 font-medium" style={{ color: GOLD, fontFamily: SANS }}>
+    <p className="text-xs tracking-[0.3em] uppercase mb-2 font-medium" style={{ color: "#8A6B11", fontFamily: SANS }}>
       {children}
     </p>
   );
@@ -82,7 +82,7 @@ export function GoldBtn({
       style={{
         fontFamily: SANS,
         background: outline ? "transparent" : hov ? DARK_GOLD : GOLD,
-        color: outline ? (hov ? GOLD : IVORY) : IVORY,
+        color: outline ? (hov ? CHARCOAL : IVORY) : CHARCOAL,
         border: `1px solid ${GOLD}`,
       }}
     >
